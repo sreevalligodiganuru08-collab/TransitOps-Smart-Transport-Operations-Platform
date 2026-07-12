@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 from .forms import *
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
@@ -8,32 +10,55 @@ from .models import *
 # -------------------------
 
 def login_page(request):
-    return render(request, 'login.html')
 
+    if request.method == "POST":
 
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user:
+            login(request, user)
+            return redirect("dashboard")
+
+    return render(request, "login.html")
+def logout_user(request):
+
+    logout(request)
+
+    return redirect("login")
+
+@login_required
 def dashboard(request):
 
     context = {
+        "vehicle_count": Vehicle.objects.count(),
+        "driver_count": Driver.objects.count(),
+        "trip_count": Trip.objects.count(),
+        "maintenance_count": Maintenance.objects.count(),
+        "fuel_logs": FuelLog.objects.count(),
+        "expense_count": Expense.objects.count(),
 
-        'vehicle_count': Vehicle.objects.count(),
+        "available_vehicles": Vehicle.objects.filter(status="Available").count(),
+        "maintenance_vehicles": Vehicle.objects.filter(status="Maintenance").count(),
 
-        'driver_count': Driver.objects.count(),
-
-        'trip_count': Trip.objects.count(),
-
-        'maintenance_count': Maintenance.objects.count(),
-
-        'expense_count': Expense.objects.count(),
-
+        "available_drivers": Driver.objects.filter(status="Available").count(),
+        "busy_drivers": Driver.objects.filter(status="On Trip").count(),
     }
 
-    return render(request, 'dashboard.html', context)
+    return render(request, "dashboard.html", context)
 
 
 # -------------------------
 # Vehicle CRUD
 # -------------------------
 
+@login_required
 def vehicle_list(request):
     vehicles = Vehicle.objects.all()
 
@@ -99,6 +124,7 @@ def delete_vehicle(request, id):
 # Driver Placeholder
 # -------------------------
 
+@login_required
 def driver_list(request):
 
     drivers = Driver.objects.all()
@@ -165,6 +191,7 @@ def delete_driver(request, id):
 # Trip Placeholder
 # -------------------------
 
+@login_required
 def trip_list(request):
 
     trips = Trip.objects.all()
@@ -177,7 +204,7 @@ def trip_list(request):
 # -------------------------
 # Maintenance
 # -------------------------
-
+@login_required
 def maintenance_list(request):
 
     maintenance = Maintenance.objects.all()
@@ -190,7 +217,7 @@ def maintenance_list(request):
 # -------------------------
 # Expense
 # -------------------------
-
+@login_required
 def expense_list(request):
 
     expenses = Expense.objects.all()
@@ -204,5 +231,27 @@ def expense_list(request):
 # Reports
 # -------------------------
 
+@login_required
 def reports(request):
-    return render(request, 'reports.html')
+
+    vehicles = Vehicle.objects.all()
+    drivers = Driver.objects.all()
+    trips = Trip.objects.all()
+    maintenance = Maintenance.objects.all()
+    expenses = Expense.objects.all()
+
+    total_expense = sum(
+        float(exp.amount)
+        for exp in expenses
+    )
+
+    context = {
+        "vehicles": vehicles,
+        "drivers": drivers,
+        "trips": trips,
+        "maintenance": maintenance,
+        "expenses": expenses,
+        "total_expense": total_expense,
+    }
+
+    return render(request, "reports.html", context)
