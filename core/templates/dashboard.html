@@ -280,8 +280,6 @@ Currently active
 
 
 </article>
-</article>
-
 
 
 
@@ -545,17 +543,6 @@ Current fleet distribution
 
 <div class="legend-item">
 
-<span class="legend-dot active-dot"></span>
-
-Active
-
-</div>
-
-
-
-
-<div class="legend-item">
-
 <span class="legend-dot available-dot"></span>
 
 Available
@@ -570,6 +557,17 @@ Available
 <span class="legend-dot maintenance-dot"></span>
 
 Maintenance
+
+</div>
+
+
+
+
+<div class="legend-item">
+
+<span class="legend-dot active-dot"></span>
+
+In Transit
 
 </div>
 
@@ -798,6 +796,7 @@ window.maintenanceCount = {{ maintenance_vehicles }};
 window.expenseCount = {{ expense_count }};
 
 window.availableVehicles = {{ available_vehicles }};
+window.maintenanceVehicles = {{ maintenance_vehicles }};
 window.otherVehicles =
 {{ vehicle_count }} - {{ available_vehicles }} - {{ maintenance_vehicles }};
 

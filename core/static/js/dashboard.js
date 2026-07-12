@@ -228,7 +228,7 @@ labels:[
 
 "Available",
 "Maintenance",
-"Other"
+"In Transit"
 
 ],
 
@@ -247,9 +247,15 @@ window.maintenanceVehicles,
 window.otherVehicles
 
 
+],
+
+backgroundColor:[
+
+"#16a34a",
+"#f59e0b",
+"#2563eb"
+
 ]
-
-
 
 }]
 
@@ -276,7 +282,7 @@ plugins:{
 
 legend:{
 
-display:true
+display:false
 
 }
 
