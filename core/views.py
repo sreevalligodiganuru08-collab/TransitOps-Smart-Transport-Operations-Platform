@@ -50,6 +50,11 @@ def dashboard(request):
         "available_drivers": Driver.objects.filter(status="Available").count(),
         "busy_drivers": Driver.objects.filter(status="On Trip").count(),
     }
+    context["total_fuel_cost"] = sum(
+    f.fuel_cost for f in FuelLog.objects.all())
+    context["total_expense"] = sum(
+    e.amount for e in Expense.objects.all()
+)
 
     return render(request, "dashboard.html", context)
 
@@ -60,12 +65,19 @@ def dashboard(request):
 
 @login_required
 def vehicle_list(request):
-    vehicles = Vehicle.objects.all()
 
-    return render(request, 'vehicles.html', {
-        'vehicles': vehicles
+    query = request.GET.get("search")
+
+    if query:
+        vehicles = Vehicle.objects.filter(
+            vehicle_name__icontains=query
+        )
+    else:
+        vehicles = Vehicle.objects.all()
+
+    return render(request, "vehicles.html", {
+        "vehicles": vehicles
     })
-
 
 def add_vehicle(request):
 
@@ -123,14 +135,20 @@ def delete_vehicle(request, id):
 # -------------------------
 # Driver Placeholder
 # -------------------------
-
 @login_required
 def driver_list(request):
 
-    drivers = Driver.objects.all()
+    query = request.GET.get("search")
 
-    return render(request, 'drivers.html', {
-        'drivers': drivers
+    if query:
+        drivers = Driver.objects.filter(
+            name__icontains=query
+        )
+    else:
+        drivers = Driver.objects.all()
+
+    return render(request, "drivers.html", {
+        "drivers": drivers
     })
 
 
