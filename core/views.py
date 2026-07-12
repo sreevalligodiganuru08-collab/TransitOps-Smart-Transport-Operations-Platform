@@ -1,9 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Trip, Vehicle, Driver
 from .forms import *
-from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 
 
@@ -232,15 +230,7 @@ def trip_list(request):
         "drivers": Driver.objects.filter(status="Available"),
     }
 
-<<<<<<< HEAD
     return render(request,"trips.html",context)
-=======
-    return render(request, 'trips.html', {
-        'trips': trips,
-        'vehicles': Vehicle.objects.all(),
-        'drivers': Driver.objects.all(),
-    })
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 
 
 # -------------------------
@@ -252,15 +242,9 @@ def maintenance_list(request):
     maintenance = Maintenance.objects.all().order_by("-id")
     vehicles = Vehicle.objects.all()
 
-<<<<<<< HEAD
     return render(request, "maintenance.html", {
         "maintenance": maintenance,
         "vehicles": vehicles,
-=======
-    return render(request, 'maintenance.html', {
-        'maintenance': maintenance,
-        'vehicles': Vehicle.objects.all(),
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
     })
 
 
@@ -303,15 +287,9 @@ def edit_maintenance(request, id):
         return redirect("maintenance")
 
     return render(request, "maintenance.html", {
-<<<<<<< HEAD
         "maintenance": Maintenance.objects.all(),
         "vehicles": Vehicle.objects.all(),
         "edit_maintenance": maintenance,
-=======
-        "maintenance": maintenance,
-        "maintenance_record": maintenance,
-        "vehicles": Vehicle.objects.all(),
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
     })
 
 
@@ -447,26 +425,18 @@ def add_trip(request):
             cargo_weight=request.POST["cargo_weight"],
             planned_distance=request.POST["planned_distance"],
             start_date=request.POST["start_date"],
-            end_date=request.POST["end_date"],
+            end_date=request.POST["end_date"] or None,
             status=request.POST["status"],
         )
 
         return redirect("trips")
 
-<<<<<<< HEAD
-=======
-    return render(request, "trips.html", {
-        "vehicles": Vehicle.objects.all(),
-        "drivers": Driver.objects.all(),
-    })
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 
     return render(request,"trips.html",{
         "vehicles":vehicles,
         "drivers":drivers
     })
 
-from django.shortcuts import render, redirect, get_object_or_404
 @login_required
 def edit_trip(request, id):
 
@@ -488,7 +458,7 @@ def edit_trip(request, id):
         trip.cargo_weight = request.POST.get("cargo_weight")
         trip.planned_distance = request.POST.get("planned_distance")
         trip.start_date = request.POST.get("start_date")
-        trip.end_date = request.POST.get("end_date")
+        trip.end_date = request.POST.get("end_date") or None
 
         # Keep existing status if no status is sent from the form
         status = request.POST.get("status")
@@ -499,7 +469,6 @@ def edit_trip(request, id):
 
         return redirect("trips")
 
-<<<<<<< HEAD
     return render(
         request,
         "trips.html",
@@ -510,14 +479,6 @@ def edit_trip(request, id):
             "edit_trip": trip,
         },
     )
-=======
-    return render(request, "trips.html", {
-        "trip": trip,
-        "vehicles": Vehicle.objects.all(),
-        "drivers": Driver.objects.all(),
-    })
-
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 @login_required
 def delete_trip(request, id):
     Trip.objects.filter(id=id).delete()

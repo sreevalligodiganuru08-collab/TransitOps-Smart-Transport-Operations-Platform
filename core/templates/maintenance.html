@@ -19,63 +19,6 @@ Log service records and keep vehicle availability accurate
 
 {% block content %}
 
-{% if maintenance_record %}
-
-<section class="dashboard-card">
-
-    <div class="card-header">
-        <div>
-            <h3>Edit Maintenance Record</h3>
-            <p>Update the record for {{ maintenance_record.vehicle.registration_number }}</p>
-        </div>
-        <a href="{% url 'maintenance' %}" class="btn btn-secondary">
-            <i class="fa-solid fa-arrow-left"></i>
-            Back to Maintenance
-        </a>
-    </div>
-
-    <form method="POST" action="{% url 'edit_maintenance' maintenance_record.id %}">
-        {% csrf_token %}
-        <div class="form-grid">
-            <div class="form-group full">
-                <label for="vehicle">Vehicle</label>
-                <select id="vehicle" name="vehicle" required>
-                    {% for v in vehicles %}
-                    <option value="{{ v.id }}" {% if maintenance_record.vehicle_id == v.id %}selected{% endif %}>{{ v.registration_number }} &middot; {{ v.status }}</option>
-                    {% endfor %}
-                </select>
-                <span class="form-hint">Selecting a vehicle here should switch its status to "Maintenance".</span>
-            </div>
-            <div class="form-group full">
-                <label for="maintenance_type">Maintenance Type</label>
-                <input type="text" id="maintenance_type" name="maintenance_type" value="{{ maintenance_record.maintenance_type }}" required>
-            </div>
-            <div class="form-group">
-                <label for="maintenance_date">Date</label>
-                <input type="date" id="maintenance_date" name="maintenance_date" value="{{ maintenance_record.maintenance_date|date:'Y-m-d' }}" required>
-            </div>
-            <div class="form-group">
-                <label for="cost">Cost (₹)</label>
-                <input type="number" id="cost" name="cost" min="0" value="{{ maintenance_record.cost }}" required>
-            </div>
-            <div class="form-group full">
-                <label for="status">Status</label>
-                <select id="status" name="status" required>
-                    <option value="In Progress" {% if maintenance_record.status == "In Progress" %}selected{% endif %}>In Progress</option>
-                    <option value="Completed" {% if maintenance_record.status == "Completed" %}selected{% endif %}>Completed</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-footer">
-            <a href="{% url 'maintenance' %}" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
-
-</section>
-
-{% else %}
-
 <section class="dashboard-header">
     <div>
         <h2>Maintenance</h2>
@@ -99,49 +42,17 @@ Log service records and keep vehicle availability accurate
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="search" id="maintenanceSearch" name="maintenance_search" placeholder="Search by vehicle or maintenance type...">
             </div>
-<<<<<<< HEAD
-            <select id="maintenanceStatusFilter">
-
-    <option value="all">All Statuses</option>
-
-    <option value="in progress">In Progress</option>
-
-    <option value="completed">Completed</option>
-
-</select>
-          </div>
-          <button type="button" class="btn btn-primary" id="openAddMaintenanceModal">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-            Add Maintenance
-          </button>
-=======
             <select id="maintenanceStatusFilter" name="maintenance_status_filter" class="select-filter">
                 <option value="all">All Statuses</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
+                <option value="in progress">In Progress</option>
+                <option value="completed">Completed</option>
             </select>
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
         </div>
     </div>
 
-<<<<<<< HEAD
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h2>Maintenance Records</h2>
-              <div class="card-sub">
-    <span id="maintenanceCount">{{ maintenance|length }}</span> records found
-</div> 
-            </div>
-          </div>
-          <div class="table-wrapper">
-            <table class="data-table" id="maintenanceTable">
-              <thead>
-=======
     <div class="table-responsive">
         <table class="activity-table" id="maintenanceTable">
             <thead>
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
                 <tr>
                     <th>Vehicle</th>
                     <th>Maintenance Type</th>
@@ -150,90 +61,23 @@ Log service records and keep vehicle availability accurate
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
-<<<<<<< HEAD
-              </thead>
-              <tbody id="maintenanceTableBody">
-
-{% for item in maintenance %}
-
-<tr data-status="{{ item.status|lower }}">
-
-<td class="cell-strong">
-{{ item.vehicle.registration_number }}
-</td>
-
-<td>
-{{ item.maintenance_type }}
-</td>
-
-<td>
-{{ item.maintenance_date }}
-</td>
-
-<td>
-₹{{ item.cost }}
-</td>
-
-<td>
-
-{% if item.status == "Completed" %}
-
-<span class="badge badge-completed">
-Completed
-</span>
-
-{% else %}
-
-<span class="badge badge-inprogress">
-{{ item.status }}
-</span>
-
-{% endif %}
-
-</td>
-
-<td>
-
-<div class="row-actions">
-
-<a href="{% url 'edit_maintenance' item.id %}" class="btn-icon">
-✏️
-</a>
-
-<a href="{% url 'delete_maintenance' item.id %}" class="btn-icon danger">
-🗑️
-</a>
-
-</div>
-
-</td>
-
-</tr>
-
-{% endfor %}
-</tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-=======
             </thead>
             <tbody id="maintenanceTableBody">
-                {% for record in maintenance %}
-                <tr data-status="{{ record.status }}">
-                    <td><strong>{{ record.vehicle.registration_number }}</strong></td>
-                    <td>{{ record.maintenance_type }}</td>
-                    <td>{{ record.maintenance_date|date:"Y-m-d" }}</td>
-                    <td>₹{{ record.cost }}</td>
+                {% for item in maintenance %}
+                <tr data-status="{{ item.status|lower }}">
+                    <td><strong>{{ item.vehicle.registration_number }}</strong></td>
+                    <td>{{ item.maintenance_type }}</td>
+                    <td>{{ item.maintenance_date|date:"Y-m-d" }}</td>
+                    <td>₹{{ item.cost }}</td>
                     <td>
-                        <span class="status-badge status-{{ record.status|slugify }}">{{ record.status }}</span>
+                        <span class="status-badge status-{{ item.status|slugify }}">{{ item.status }}</span>
                     </td>
                     <td>
                         <div class="row-actions">
-                            <a href="{% url 'edit_maintenance' record.id %}" class="icon-btn" aria-label="Edit maintenance record">
+                            <a href="{% url 'edit_maintenance' item.id %}" class="icon-btn" aria-label="Edit maintenance record">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <a href="{% url 'delete_maintenance' record.id %}" class="icon-btn danger delete-link" aria-label="Delete maintenance record" data-confirm="Delete this maintenance record? This cannot be undone.">
+                            <a href="{% url 'delete_maintenance' item.id %}" class="icon-btn danger delete-link" aria-label="Delete maintenance record" data-confirm="Delete this maintenance record? This cannot be undone.">
                                 <i class="fa-solid fa-trash"></i>
                             </a>
                         </div>
@@ -246,182 +90,71 @@ Completed
                 {% endfor %}
             </tbody>
         </table>
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
     </div>
 </section>
 
-<!-- Add Maintenance Modal -->
+<!-- Add / Edit Maintenance Modal -->
 <div class="modal-overlay" id="addMaintenanceModal">
     <div class="modal">
-<<<<<<< HEAD
-      <div class="modal-header">
-        <h3>Add Maintenance Record</h3>
-        <button type="button" class="modal-close" data-close-modal aria-label="Close">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
-      </div>
-     <form
-method="POST"
-action="{% if edit_maintenance %}{% url 'edit_maintenance' edit_maintenance.id %}{% else %}{% url 'add_maintenance' %}{% endif %}">
-{% csrf_token %}
-        <div class="modal-body">
-          <div class="form-grid">
-            <div class="form-group full">
-              <label for="vehicle">Vehicle</label>
-              <select id="vehicle" name="vehicle" required>
-    <option value="">Select Vehicle</option>
-
-    {% for vehicle in vehicles %}
-        <option
-value="{{ vehicle.id }}"
-{% if edit_maintenance and vehicle.id == edit_maintenance.vehicle.id %}selected{% endif %}>
-
-{{ vehicle.registration_number }}
-
-</option>
-    {% endfor %}
-
-</select>
-              <span class="form-hint">Selecting a vehicle here will switch its status to "In Shop" and remove it from trip dispatch.</span>
-            </div>
-            <div class="form-group full">
-              <label for="maintenance_type">Maintenance Type</label>
-              <input
-type="text"
-id="maintenance_type"
-name="maintenance_type"
-value="{% if edit_maintenance %}{{ edit_maintenance.maintenance_type }}{% endif %}"
-required>
-            </div>
-            <div class="form-group">
-              <label for="maintenance_date">Date</label>
-              <input
-type="date"
-id="maintenance_date"
-name="maintenance_date"
-value="{% if edit_maintenance %}{{ edit_maintenance.maintenance_date|date:'Y-m-d' }}{% endif %}"
-required>
-            </div>
-            <div class="form-group">
-              <label for="cost">Cost (₹)</label>
-              <input
-type="number"
-id="cost"
-name="cost"
-value="{% if edit_maintenance %}{{ edit_maintenance.cost }}{% endif %}"
-required>
-            </div>
-            <div class="form-group full">
-              <label for="status">Status</label>
-              <select id="status" name="status" required>
-                <option
-value="In Progress"
-{% if edit_maintenance and edit_maintenance.status == "In Progress" %}selected{% endif %}>
-In Progress
-</option>
-
-<option
-value="Completed"
-{% if edit_maintenance and edit_maintenance.status == "Completed" %}selected{% endif %}>
-Completed
-</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          {% if edit_maintenance %}
-
-<button
-type="submit"
-class="btn btn-primary">
-
-Update Record
-
-</button>
-
-{% else %}
-
-<button
-type="submit"
-class="btn btn-primary">
-
-Save Record
-
-</button>
-
-{% endif %}
-        </div>
-      </form>
-=======
         <div class="modal-header">
-            <h3>Add Maintenance Record</h3>
+            <h3>{% if edit_maintenance %}Edit Maintenance Record{% else %}Add Maintenance Record{% endif %}</h3>
             <button type="button" class="modal-close" data-close-modal aria-label="Close">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <form method="POST" action="{% url 'add_maintenance' %}">
+        <form method="POST" action="{% if edit_maintenance %}{% url 'edit_maintenance' edit_maintenance.id %}{% else %}{% url 'add_maintenance' %}{% endif %}">
             {% csrf_token %}
             <div class="modal-body">
                 <div class="form-grid">
                     <div class="form-group full">
-                        <label for="new_vehicle">Vehicle</label>
-                        <select id="new_vehicle" name="vehicle" required>
+                        <label for="vehicle">Vehicle</label>
+                        <select id="vehicle" name="vehicle" required>
                             <option value="">Select vehicle</option>
                             {% for v in vehicles %}
-                            <option value="{{ v.id }}">{{ v.registration_number }} &middot; {{ v.status }}</option>
+                            <option value="{{ v.id }}" {% if edit_maintenance and edit_maintenance.vehicle_id == v.id %}selected{% endif %}>{{ v.registration_number }} &middot; {{ v.status }}</option>
                             {% endfor %}
                         </select>
                         <span class="form-hint">Selecting a vehicle here should switch its status to "Maintenance".</span>
                     </div>
                     <div class="form-group full">
-                        <label for="new_maintenance_type">Maintenance Type</label>
-                        <input type="text" id="new_maintenance_type" name="maintenance_type" required placeholder="e.g. Oil Change, Brake Service">
+                        <label for="maintenance_type">Maintenance Type</label>
+                        <input type="text" id="maintenance_type" name="maintenance_type" required placeholder="e.g. Oil Change, Brake Service" value="{% if edit_maintenance %}{{ edit_maintenance.maintenance_type }}{% endif %}">
                     </div>
                     <div class="form-group">
-                        <label for="new_maintenance_date">Date</label>
-                        <input type="date" id="new_maintenance_date" name="maintenance_date" required>
+                        <label for="maintenance_date">Date</label>
+                        <input type="date" id="maintenance_date" name="maintenance_date" required value="{% if edit_maintenance %}{{ edit_maintenance.maintenance_date|date:'Y-m-d' }}{% endif %}">
                     </div>
                     <div class="form-group">
-                        <label for="new_cost">Cost (₹)</label>
-                        <input type="number" id="new_cost" name="cost" min="0" required placeholder="e.g. 1800">
+                        <label for="cost">Cost (₹)</label>
+                        <input type="number" id="cost" name="cost" min="0" required placeholder="e.g. 1800" value="{% if edit_maintenance %}{{ edit_maintenance.cost }}{% endif %}">
                     </div>
                     <div class="form-group full">
-                        <label for="new_status">Status</label>
-                        <select id="new_status" name="status" required>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
+                        <label for="status">Status</label>
+                        <select id="status" name="status" required>
+                            <option value="In Progress" {% if edit_maintenance and edit_maintenance.status == "In Progress" %}selected{% endif %}>In Progress</option>
+                            <option value="Completed" {% if edit_maintenance and edit_maintenance.status == "Completed" %}selected{% endif %}>Completed</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Record</button>
+                <button type="submit" class="btn btn-primary">{% if edit_maintenance %}Update Record{% else %}Save Record{% endif %}</button>
             </div>
         </form>
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
     </div>
 </div>
 
-<<<<<<< HEAD
-  <div class="toast" id="toast"></div>
-  {% if edit_maintenance %}
-
+{% if edit_maintenance %}
 <script>
-
-window.onload = function () {
-
-    document
-        .getElementById("addMaintenanceModal")
-        .classList.add("open");
-
-}
-
+window.addEventListener("DOMContentLoaded", function () {
+    var modal = document.getElementById("addMaintenanceModal");
+    if (modal) {
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+});
 </script>
-
-=======
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 {% endif %}
 
 {% endblock %}

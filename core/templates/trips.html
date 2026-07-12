@@ -1,6 +1,4 @@
-{% extends "base.html" %}
 {% load static %}
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 
@@ -248,6 +246,12 @@ id="tripsTable">
                 Scheduled
             </span>
 
+        {% elif trip.status == "Ongoing" %}
+
+            <span class="badge badge-ontrip">
+                Ongoing
+            </span>
+
         {% elif trip.status == "Draft" %}
 
             <span class="badge badge-draft">
@@ -306,138 +310,9 @@ id="tripsTable">
 
             </a>
 
-=======
-
-{% block title %}
-Trips | TransitOps
-{% endblock %}
-
-{% block page_title %}
-Trip Management
-{% endblock %}
-
-{% block page_subtitle %}
-Create, dispatch, and track fleet trips in real time
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/vehicle.css' %}">
-{% endblock %}
-
-{% block content %}
-
-{% if trip %}
-
-<section class="dashboard-card">
-
-    <div class="card-header">
-        <div>
-            <h3>Edit Trip</h3>
-            <p>Update trip details for {{ trip.source }} &rarr; {{ trip.destination }}</p>
-        </div>
-        <a href="{% url 'trips' %}" class="btn btn-secondary">
-            <i class="fa-solid fa-arrow-left"></i>
-            Back to Trips
-        </a>
-    </div>
-
-    <form method="POST" action="{% url 'edit_trip' trip.id %}">
-        {% csrf_token %}
-        <div class="form-grid">
-            <div class="form-group full">
-                <label for="source">Source</label>
-                <input type="text" id="source" name="source" value="{{ trip.source }}" required>
-            </div>
-            <div class="form-group full">
-                <label for="destination">Destination</label>
-                <input type="text" id="destination" name="destination" value="{{ trip.destination }}" required>
-            </div>
-            <div class="form-group">
-                <label for="vehicle">Vehicle</label>
-                <select id="vehicle" name="vehicle" required>
-                    {% for v in vehicles %}
-                    <option value="{{ v.id }}" data-capacity="{{ v.capacity }}" {% if trip.vehicle_id == v.id %}selected{% endif %}>{{ v.registration_number }} &middot; {{ v.status }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="driver">Driver</label>
-                <select id="driver" name="driver" required>
-                    {% for d in drivers %}
-                    <option value="{{ d.id }}" {% if trip.driver_id == d.id %}selected{% endif %}>{{ d.name }} &middot; {{ d.status }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="cargo_weight">Cargo Weight (kg)</label>
-                <input type="number" id="cargo_weight" name="cargo_weight" min="1" value="{{ trip.cargo_weight }}" required>
-                <span class="form-error" id="cargoError">Cargo weight exceeds the selected vehicle's maximum load capacity.</span>
-            </div>
-            <div class="form-group">
-                <label for="planned_distance">Planned Distance (km)</label>
-                <input type="number" id="planned_distance" name="planned_distance" min="1" value="{{ trip.planned_distance }}" required>
-            </div>
-            <div class="form-group">
-                <label for="start_date">Start Date</label>
-                <input type="date" id="start_date" name="start_date" value="{{ trip.start_date|date:'Y-m-d' }}" required>
-            </div>
-            <div class="form-group">
-                <label for="end_date">End Date</label>
-                <input type="date" id="end_date" name="end_date" value="{{ trip.end_date|date:'Y-m-d' }}">
-            </div>
-            <div class="form-group full">
-                <label for="status">Status</label>
-                <select id="status" name="status" required>
-                    <option value="Scheduled" {% if trip.status == "Scheduled" %}selected{% endif %}>Scheduled</option>
-                    <option value="Ongoing" {% if trip.status == "Ongoing" %}selected{% endif %}>Ongoing</option>
-                    <option value="Completed" {% if trip.status == "Completed" %}selected{% endif %}>Completed</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-footer">
-            <a href="{% url 'trips' %}" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
-
-</section>
-
-{% else %}
-
-<section class="dashboard-header">
-    <div>
-        <h2>Trip Management</h2>
-        <p>Create, dispatch, and track fleet trips in real time.</p>
-    </div>
-    <button type="button" class="btn btn-primary" id="openAddTripModal">
-        <i class="fa-solid fa-plus"></i>
-        Create Trip
-    </button>
-</section>
-
-<section class="dashboard-card">
-
-    <div class="card-header">
-        <div>
-            <h3>All Trips</h3>
-            <p><span id="tripCount">{{ trips|length }}</span> trips found</p>
-        </div>
-        <div class="toolbar-controls">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" id="tripSearch" name="trip_search" placeholder="Search by source, destination, vehicle or driver...">
-            </div>
-            <select id="statusFilter" name="status_filter" class="select-filter">
-                <option value="all">All Statuses</option>
-                <option value="Scheduled">Scheduled</option>
-                <option value="Ongoing">Ongoing</option>
-                <option value="Completed">Completed</option>
-            </select>
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
         </div>
     </div>
 
-<<<<<<< HEAD
     </td>
 
 </tr>
@@ -537,26 +412,21 @@ required>
                         <label>Vehicle</label>
 
                         <select
+                            id="vehicle"
                             name="vehicle"
                             required>
 
-                            <option value="">
-                                Select Vehicle
+                            <option value="">Select Vehicle</option>
                             {% for vehicle in vehicles %}
-
-<option
-value="{{ vehicle.id }}"
-{% if edit_trip and vehicle.id == edit_trip.vehicle.id %}selected{% endif %}>
-
-{{ vehicle.registration_number }}
-
-</option>
-
-{% endfor %}
-
-                          
-
+                            <option
+                                value="{{ vehicle.id }}"
+                                data-capacity="{{ vehicle.capacity }}"
+                                {% if edit_trip and vehicle.id == edit_trip.vehicle.id %}selected{% endif %}>
+                                {{ vehicle.registration_number }} &middot; {{ vehicle.status }} &middot; Max {{ vehicle.capacity }} kg
+                            </option>
+                            {% endfor %}
                         </select>
+                        <span class="form-error" id="cargoError">Cargo weight exceeds the selected vehicle's maximum load capacity.</span>
 
                     </div>
 
@@ -567,6 +437,7 @@ value="{{ vehicle.id }}"
                         <label>Driver</label>
 
                         <select
+                            id="driver"
                             name="driver"
                             required>
 
@@ -597,6 +468,7 @@ value="{{ driver.id }}"
 
                         <input
 type="number"
+id="cargo_weight"
 name="cargo_weight"
 value="{% if edit_trip %}{{ edit_trip.cargo_weight }}{% endif %}"
 required>
@@ -665,9 +537,9 @@ Update Trip
 type="submit"
 class="btn btn-secondary"
 name="status"
-value="Draft">
+value="Scheduled">
 
-Save Draft
+Save as Scheduled
 
 </button>
 
@@ -675,7 +547,7 @@ Save Draft
 type="submit"
 class="btn btn-primary"
 name="status"
-value="Scheduled">
+value="Ongoing">
 
 Dispatch Trip
 
@@ -710,138 +582,3 @@ document.getElementById("createTripModal").classList.add("open");
 </body>
 
 </html>
-=======
-    <div class="table-responsive">
-        <table class="activity-table" id="tripsTable">
-            <thead>
-                <tr>
-                    <th>Trip ID</th>
-                    <th>Source</th>
-                    <th>Destination</th>
-                    <th>Vehicle</th>
-                    <th>Driver</th>
-                    <th>Cargo Weight</th>
-                    <th>Planned Distance</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="tripsTableBody">
-                {% for trip in trips %}
-                <tr data-status="{{ trip.status }}">
-                    <td><strong>TRP-{{ trip.id }}</strong></td>
-                    <td>{{ trip.source }}</td>
-                    <td>{{ trip.destination }}</td>
-                    <td>{{ trip.vehicle.registration_number }}</td>
-                    <td>{{ trip.driver.name }}</td>
-                    <td>{{ trip.cargo_weight }} kg</td>
-                    <td>{{ trip.planned_distance }} km</td>
-                    <td>
-                        <span class="status-badge status-{{ trip.status|slugify }}">{{ trip.status }}</span>
-                    </td>
-                    <td>
-                        <div class="row-actions">
-                            <a href="{% url 'edit_trip' trip.id %}" class="icon-btn" aria-label="Edit trip">
-                                <i class="fa-solid fa-pen"></i>
-                            </a>
-                            <a href="{% url 'delete_trip' trip.id %}" class="icon-btn danger delete-link" aria-label="Delete trip" data-confirm="Delete trip TRP-{{ trip.id }}? This cannot be undone.">
-                                <i class="fa-solid fa-trash"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr class="empty-row">
-                    <td colspan="9">No trips yet. Click "Create Trip" to dispatch the first one.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</section>
-
-<!-- Create Trip Modal -->
-<div class="modal-overlay" id="addTripModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>Create New Trip</h3>
-            <button type="button" class="modal-close" data-close-modal aria-label="Close">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <form method="POST" action="{% url 'add_trip' %}">
-            {% csrf_token %}
-            <div class="modal-body">
-                <div class="form-grid">
-                    <div class="form-group full">
-                        <label for="new_source">Source</label>
-                        <input type="text" id="new_source" name="source" required placeholder="e.g. Warehouse A · Pune">
-                    </div>
-                    <div class="form-group full">
-                        <label for="new_destination">Destination</label>
-                        <input type="text" id="new_destination" name="destination" required placeholder="e.g. Distribution Hub · Mumbai">
-                    </div>
-                    <div class="form-group">
-                        <label for="new_vehicle">Vehicle</label>
-                        <select id="new_vehicle" name="vehicle" required>
-                            <option value="">Select vehicle</option>
-                            {% for v in vehicles %}
-                            <option value="{{ v.id }}" data-capacity="{{ v.capacity }}">{{ v.registration_number }} &middot; {{ v.status }} &middot; Max {{ v.capacity }} kg</option>
-                            {% endfor %}
-                        </select>
-                        <span class="form-hint">Only vehicles with status "Available" should be dispatched.</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_driver">Driver</label>
-                        <select id="new_driver" name="driver" required>
-                            <option value="">Select driver</option>
-                            {% for d in drivers %}
-                            <option value="{{ d.id }}">{{ d.name }} &middot; {{ d.status }}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="form-hint">Suspended or on-trip drivers should not be assigned.</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_cargo_weight">Cargo Weight (kg)</label>
-                        <input type="number" id="new_cargo_weight" name="cargo_weight" min="1" required placeholder="e.g. 450">
-                        <span class="form-error" id="newCargoError">Cargo weight exceeds the selected vehicle's maximum load capacity.</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_planned_distance">Planned Distance (km)</label>
-                        <input type="number" id="new_planned_distance" name="planned_distance" min="1" required placeholder="e.g. 180">
-                    </div>
-                    <div class="form-group">
-                        <label for="new_start_date">Start Date</label>
-                        <input type="date" id="new_start_date" name="start_date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="new_end_date">End Date</label>
-                        <input type="date" id="new_end_date" name="end_date">
-                        <span class="form-hint">Leave blank until the trip is completed.</span>
-                    </div>
-                    <div class="form-group full">
-                        <label for="new_status">Status</label>
-                        <select id="new_status" name="status" required>
-                            <option value="Scheduled">Scheduled</option>
-                            <option value="Ongoing">Ongoing</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Trip</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-{% endif %}
-
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/trip.js' %}"></script>
-{% endblock %}
->>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
