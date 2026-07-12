@@ -63,7 +63,7 @@ def dashboard(request):
             Trip.objects.count(),
 
         "active_trips":
-            Trip.objects.filter(status="Active").count(),
+            Trip.objects.filter(status="Ongoing").count(),
 
 
         # Expenses
