@@ -206,15 +206,15 @@
 
       var actionsHtml = status === "dispatched"
         ? '<div class="row-actions">' +
-            '<button type="button" class="btn-icon action-complete" title="Complete trip" data-id="' + tripId + '">' +
+            '<button type="button" class="btn-icon action-complete" title="Complete trip" aria-label="Complete trip" data-id="' + tripId + '">' +
               '<svg class="icon" viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg></button>' +
-            '<button type="button" class="btn-icon danger action-cancel" title="Cancel trip" data-id="' + tripId + '">' +
+            '<button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="' + tripId + '">' +
               '<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
           "</div>"
         : '<div class="row-actions">' +
-            '<button type="button" class="btn-icon action-dispatch" title="Dispatch trip" data-id="' + tripId + '">' +
+            '<button type="button" class="btn-icon action-dispatch" title="Dispatch trip" aria-label="Dispatch trip" data-id="' + tripId + '">' +
               '<svg class="icon" viewBox="0 0 24 24"><path d="M5 4l14 8-14 8V4z"/></svg></button>' +
-            '<button type="button" class="btn-icon danger action-cancel" title="Cancel trip" data-id="' + tripId + '">' +
+            '<button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="' + tripId + '">' +
               '<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
           "</div>";
 
@@ -267,9 +267,9 @@
         statusCell.innerHTML = badge("dispatched", "Dispatched");
         actionsCell.innerHTML =
           '<div class="row-actions">' +
-            '<button type="button" class="btn-icon action-complete" title="Complete trip" data-id="' + tripId + '">' +
+            '<button type="button" class="btn-icon action-complete" title="Complete trip" aria-label="Complete trip" data-id="' + tripId + '">' +
               '<svg class="icon" viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg></button>' +
-            '<button type="button" class="btn-icon danger action-cancel" title="Cancel trip" data-id="' + tripId + '">' +
+            '<button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="' + tripId + '">' +
               '<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
           "</div>";
         showToast("Trip " + tripId + " dispatched. Vehicle & driver marked On Trip.", "success");
@@ -317,7 +317,7 @@
 
       var actionsHtml = status === "completed"
         ? '<div class="row-actions"><span class="cell-muted">Vehicle available</span></div>'
-        : '<div class="row-actions"><button type="button" class="btn-icon action-close-maintenance" title="Mark completed" data-vehicle="' + vehicle + '">' +
+        : '<div class="row-actions"><button type="button" class="btn-icon action-close-maintenance" title="Mark completed" aria-label="Mark completed" data-vehicle="' + vehicle + '">' +
             '<svg class="icon" viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg></button></div>';
 
       var row = document.createElement("tr");
