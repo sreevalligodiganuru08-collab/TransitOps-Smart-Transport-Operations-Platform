@@ -1,0 +1,1039 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}
+Dashboard | TransitOps
+{% endblock %}
+
+
+{% block page_title %}
+Dashboard
+{% endblock %}
+
+
+{% block page_subtitle %}
+Monitor your fleet operations and performance
+{% endblock %}
+
+
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+
+
+<section class="dashboard-header">
+
+    <div>
+
+        <h2>
+            Fleet Overview
+        </h2>
+
+        <p>
+            Real-time overview of your transport operations.
+        </p>
+
+    </div>
+
+
+    <a href="{% url 'add_trip' %}" 
+       class="btn btn-primary">
+
+        <i class="fa-solid fa-plus"></i>
+
+        Add New Trip
+
+    </a>
+
+
+</section>
+
+
+
+
+
+<section class="stats-grid">
+
+
+
+<article class="stat-card">
+
+<div class="stat-card-top">
+
+<div class="stat-icon icon-blue">
+
+<i class="fa-solid fa-bus"></i>
+
+</div>
+
+
+<span class="stat-change positive">
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+8.2%
+
+</span>
+
+</div>
+
+
+
+<div class="stat-content">
+
+<p>
+Active Vehicles
+</p>
+
+
+<h3 class="stat-number">
+{{ vehicle_count }}
+</h3>
+
+
+<span>
+Currently on the road
+</span>
+
+
+</div>
+
+
+</article>
+
+
+
+
+
+
+
+<article class="stat-card">
+
+
+<div class="stat-card-top">
+
+
+<div class="stat-icon icon-green">
+
+<i class="fa-solid fa-circle-check"></i>
+
+</div>
+
+
+<span class="stat-change positive">
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+4.5%
+
+</span>
+
+
+</div>
+
+
+
+<div class="stat-content">
+
+
+<p>
+Available Vehicles
+</p>
+
+
+<h3 class="stat-number">
+
+{{ available_vehicles }}
+
+</h3>
+
+
+<span>
+Ready for assignment
+</span>
+
+
+</div>
+
+
+</article>
+
+
+
+
+
+
+
+<article class="stat-card">
+
+
+<div class="stat-card-top">
+
+
+<div class="stat-icon icon-orange">
+
+<i class="fa-solid fa-screwdriver-wrench"></i>
+
+</div>
+
+
+<span class="stat-change negative">
+
+<i class="fa-solid fa-arrow-trend-down"></i>
+2.1%
+
+</span>
+
+
+</div>
+
+
+
+
+<div class="stat-content">
+
+
+<p>
+In Maintenance
+</p>
+
+
+<h3 class="stat-number">
+
+{{ maintenance_vehicles }}
+
+</h3>
+
+
+<span>
+Under service or repair
+</span>
+
+
+</div>
+
+
+</article>
+
+
+
+
+
+
+
+<article class="stat-card">
+
+
+<div class="stat-card-top">
+
+
+<div class="stat-icon icon-purple">
+
+<i class="fa-solid fa-id-card"></i>
+
+
+</div>
+
+
+<span class="stat-change positive">
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+6.4%
+
+</span>
+
+
+</div>
+
+
+
+<div class="stat-content">
+
+
+<p>
+Drivers On Duty
+</p>
+
+
+<h3 class="stat-number">
+
+{{ busy_drivers }}
+
+</h3>
+
+
+<span>
+Currently active
+</span>
+
+
+</div>
+
+
+</article>
+</article>
+
+
+
+
+
+<article class="stat-card">
+
+
+<div class="stat-card-top">
+
+
+<div class="stat-icon icon-cyan">
+
+<i class="fa-solid fa-route"></i>
+
+</div>
+
+
+<span class="stat-change positive">
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+12.3%
+
+</span>
+
+
+</div>
+
+
+
+<div class="stat-content">
+
+
+<p>
+Active Trips
+</p>
+
+
+<h3 class="stat-number">
+
+{{ active_trips }}
+
+</h3>
+
+
+<span>
+Trips currently running
+</span>
+
+
+</div>
+
+
+</article>
+
+
+
+
+
+
+
+<article class="stat-card">
+
+
+<div class="stat-card-top">
+
+
+<div class="stat-icon icon-red">
+
+<i class="fa-solid fa-wallet"></i>
+
+</div>
+
+
+<span class="stat-change positive">
+
+<i class="fa-solid fa-arrow-trend-up"></i>
+5.7%
+
+</span>
+
+
+</div>
+
+
+
+<div class="stat-content">
+
+
+<p>
+Expenses
+</p>
+
+
+<h3 class="stat-number">
+
+{{ expense_count }}
+
+</h3>
+
+
+<span>
+Total expenses recorded
+</span>
+
+
+</div>
+
+
+</article>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- =========================
+     CHART SECTION
+========================= -->
+
+
+
+<section class="charts-grid">
+
+
+
+
+
+<article class="dashboard-card chart-card">
+
+
+
+<div class="card-header">
+
+
+<div>
+
+<h3>
+Fleet Performance
+</h3>
+
+
+<p>
+Vehicle activity over the last 7 days
+</p>
+
+
+</div>
+
+
+
+<select class="dashboard-select">
+
+<option>
+Last 7 Days
+</option>
+
+<option>
+Last 30 Days
+</option>
+
+<option>
+Last 3 Months
+</option>
+
+
+</select>
+
+
+
+</div>
+
+
+
+
+
+<div class="chart-container">
+
+<canvas id="fleetPerformanceChart"></canvas>
+
+</div>
+
+
+
+
+</article>
+
+
+
+
+
+
+
+
+
+<article class="dashboard-card chart-card">
+
+
+<div class="card-header">
+
+
+<div>
+
+<h3>
+Vehicle Status
+</h3>
+
+
+<p>
+Current fleet distribution
+</p>
+
+
+</div>
+
+
+
+
+<button class="card-action-btn"
+        type="button">
+
+
+<i class="fa-solid fa-ellipsis"></i>
+
+
+</button>
+
+
+
+
+</div>
+
+
+
+
+
+
+<div class="chart-container doughnut-container">
+
+
+<canvas id="vehicleStatusChart"></canvas>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="chart-legend">
+
+
+
+<div class="legend-item">
+
+<span class="legend-dot active-dot"></span>
+
+Active
+
+</div>
+
+
+
+
+<div class="legend-item">
+
+<span class="legend-dot available-dot"></span>
+
+Available
+
+</div>
+
+
+
+
+<div class="legend-item">
+
+<span class="legend-dot maintenance-dot"></span>
+
+Maintenance
+
+</div>
+
+
+
+</div>
+
+
+
+
+</article>
+
+
+
+
+</section>
+<!-- =========================
+     RECENT ACTIVITY
+========================= -->
+
+
+<section class="dashboard-card activity-card">
+
+
+<div class="card-header">
+
+
+<div>
+
+<h3>
+Recent Activity
+</h3>
+
+
+<p>
+Latest fleet and trip updates
+</p>
+
+
+</div>
+
+
+
+
+<button class="view-all-btn" type="button">
+
+View All
+
+<i class="fa-solid fa-arrow-right"></i>
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="table-responsive">
+
+
+
+<table class="activity-table">
+
+
+
+<thead>
+
+
+<tr>
+
+<th>
+Vehicle
+</th>
+
+
+<th>
+Driver
+</th>
+
+
+<th>
+Route
+</th>
+
+
+<th>
+Status
+</th>
+
+
+<th>
+Time
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+
+<tbody>
+
+
+
+
+
+<tr>
+
+
+<td>
+
+
+<div class="vehicle-cell">
+
+
+<div class="vehicle-icon">
+
+<i class="fa-solid fa-bus"></i>
+
+</div>
+
+
+
+<div>
+
+<strong>
+TS-09-AB-1245
+</strong>
+
+
+<span>
+City Bus
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</td>
+
+
+
+
+
+<td>
+Rahul Sharma
+</td>
+
+
+
+<td>
+Hyderabad → Warangal
+</td>
+
+
+
+<td>
+
+<span class="status-badge status-active">
+
+Active
+
+</span>
+
+</td>
+
+
+
+<td>
+10 mins ago
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+<tr>
+
+
+<td>
+
+
+<div class="vehicle-cell">
+
+
+<div class="vehicle-icon">
+
+<i class="fa-solid fa-truck"></i>
+
+</div>
+
+
+
+<div>
+
+<strong>
+TS-10-CD-5678
+</strong>
+
+
+<span>
+Transport Truck
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</td>
+
+
+
+
+
+<td>
+Arjun Reddy
+</td>
+
+
+
+<td>
+Nizamabad → Hyderabad
+</td>
+
+
+
+<td>
+
+<span class="status-badge status-completed">
+
+Completed
+
+</span>
+
+</td>
+
+
+
+<td>
+25 mins ago
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+<tr>
+
+
+<td>
+
+
+<div class="vehicle-cell">
+
+
+<div class="vehicle-icon">
+
+<i class="fa-solid fa-van-shuttle"></i>
+
+</div>
+
+
+
+<div>
+
+<strong>
+AP-25-EF-9012
+</strong>
+
+
+<span>
+Passenger Van
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</td>
+
+
+
+
+
+<td>
+Vikram Kumar
+</td>
+
+
+
+<td>
+Armur → Nizamabad
+</td>
+
+
+
+<td>
+
+<span class="status-badge status-maintenance">
+
+Maintenance
+
+</span>
+
+</td>
+
+
+
+<td>
+1 hour ago
+</td>
+
+
+
+</tr>
+
+
+
+
+
+
+
+
+<tr>
+
+
+<td>
+
+
+<div class="vehicle-cell">
+
+
+<div class="vehicle-icon">
+
+<i class="fa-solid fa-bus-simple"></i>
+
+</div>
+
+
+
+<div>
+
+<strong>
+TS-16-GH-3456
+</strong>
+
+
+<span>
+Express Bus
+</span>
+
+
+</div>
+
+
+</div>
+
+
+</td>
+
+
+
+
+
+<td>
+Sandeep Rao
+</td>
+
+
+
+<td>
+Karimnagar → Hyderabad
+</td>
+
+
+
+<td>
+
+<span class="status-badge status-active">
+
+Active
+
+</span>
+
+</td>
+
+
+
+<td>
+2 hours ago
+</td>
+
+
+
+</tr>
+
+
+
+
+
+</tbody>
+
+
+</table>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
+{% block extra_js %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script src="{% static 'js/dashboard.js' %}"></script>
+
+
+
+{% endblock %}
