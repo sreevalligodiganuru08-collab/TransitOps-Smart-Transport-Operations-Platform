@@ -1,0 +1,287 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports &amp; Analytics · TransitOps</title>
+  <link rel="stylesheet" href="{% static 'css/trip.css' %}">
+  <link rel="stylesheet" href="{% static 'css/reports.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">TO</div>
+        <div>
+          <div class="brand-text">TransitOps</div>
+          <div class="brand-sub">Fleet Control Center</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Operations</div>
+        <a href="/dashboard/">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          Dashboard
+        </a>
+        <a href="/vehicles/">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="1" y="7" width="13" height="9" rx="1.5"/><path d="M14 10h4l4 3.2V16h-8z"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="17.5" cy="18.5" r="1.8"/></svg>
+          Vehicles
+        </a>
+        <a href="/drivers/">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="8.5" r="2.4"/><path d="M16.2 14.2c2.6.6 4.3 2.6 4.3 5.3"/></svg>
+          Drivers
+        </a>
+        <a href="/trips/">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M5 8.2V12a4 4 0 0 0 4 4h5a4 4 0 0 1 4 4"/></svg>
+          Trips
+        </a>
+        <a href="/maintenance/">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M14.2 6.6a3.6 3.6 0 0 1-4.8 4.8L4.6 16.2a1.8 1.8 0 0 0 2.5 2.5l4.8-4.8a3.6 3.6 0 0 1 4.8-4.8l-2.3 2.3-1.8-1.8z"/></svg>
+          Maintenance
+        </a>
+        <div class="nav-section-label">Finance &amp; Insights</div>
+        <a href="/expenses/">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          Fuel &amp; Expenses
+        </a>
+        <a href="/reports/" class="active">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+          Reports
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">FA</div>
+        <div>
+          <div class="who-name">Financial Analyst</div>
+          <div class="who-role">Analytics Role</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-col">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </button>
+          <div class="page-heading">
+            <h1>Reports &amp; Analytics</h1>
+            <p>Fleet performance, cost, and profitability at a glance.</p>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button type="button" class="icon-btn" aria-label="Notifications">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+          </button>
+          <div class="avatar">FA</div>
+        </div>
+      </header>
+
+      <main class="page-content">
+
+        <div class="export-bar">
+          <button type="button" class="btn btn-secondary" id="exportCsvBtn">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Export CSV
+          </button>
+          <button type="button" class="btn btn-outline" id="exportPdfBtn">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/></svg>
+            Export PDF
+          </button>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 12h9V3"/></svg>
+              </div>
+              <span class="stat-trend up">+4.2%</span>
+            </div>
+            <div class="stat-value" data-counter data-target="78" data-suffix="%">0%</div>
+            <div class="stat-label">Fleet Utilization</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h9l4 5v11H4z"/><path d="M13 4v5h4"/></svg>
+              </div>
+              <span class="stat-trend up">+0.6</span>
+            </div>
+            <div class="stat-value" data-counter data-target="8.4" data-decimals="1" data-suffix=" km/L">0 km/L</div>
+            <div class="stat-label">Fuel Efficiency (Distance / Fuel)</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon">
+                <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              </div>
+              <span class="stat-trend down">+2.1%</span>
+            </div>
+            <div class="stat-value" data-counter data-target="284650" data-prefix="₹">₹0</div>
+            <div class="stat-label">Operational Cost (Fuel + Maintenance)</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+              </div>
+              <span class="stat-trend up">+3.9%</span>
+            </div>
+            <div class="stat-value" data-counter data-target="21.6" data-decimals="1" data-suffix="%">0%</div>
+            <div class="stat-label">Vehicle ROI</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div>
+                <h3>Fleet Utilization by Vehicle</h3>
+                <div class="card-sub">Bar chart — trips completed vs idle days</div>
+              </div>
+              <div class="chart-legend">
+                <span><span class="dot dot-primary"></span>Utilized</span>
+                <span><span class="dot dot-idle"></span>Idle</span>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="utilizationBarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div>
+                <h3>Cost Distribution</h3>
+                <div class="card-sub">Pie chart — fuel vs maintenance vs tolls</div>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="costPieChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="charts-grid-secondary">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div>
+                <h3>Monthly Expense Trend</h3>
+                <div class="card-sub">Line chart — total operational cost per month</div>
+              </div>
+              <div class="chart-legend">
+                <span><span class="dot dot-primary"></span>Total Expense (₹)</span>
+              </div>
+            </div>
+            <div class="chart-canvas-wrap short">
+              <canvas id="monthlyExpenseChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Recent Reports</h2>
+              <div class="card-sub">Generated snapshots ready for download</div>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" id="recentReportsTable">
+              <thead>
+                <tr>
+                  <th>Report</th>
+                  <th>Type</th>
+                  <th>Period</th>
+                  <th>Generated On</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="report-name">
+                      <div class="file-icon">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
+                      </div>
+                      <span class="cell-strong">Fleet Utilization Summary</span>
+                    </div>
+                  </td>
+                  <td>Utilization</td>
+                  <td>Jun 2026</td>
+                  <td>2026-07-01</td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" class="btn-icon report-download" title="Download CSV">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="report-name">
+                      <div class="file-icon">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
+                      </div>
+                      <span class="cell-strong">Fuel Consumption Report</span>
+                    </div>
+                  </td>
+                  <td>Fuel</td>
+                  <td>Jun 2026</td>
+                  <td>2026-07-01</td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" class="btn-icon report-download" title="Download CSV">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="report-name">
+                      <div class="file-icon">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/></svg>
+                      </div>
+                      <span class="cell-strong">Vehicle ROI Breakdown</span>
+                    </div>
+                  </td>
+                  <td>Profitability</td>
+                  <td>Q2 2026</td>
+                  <td>2026-07-02</td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" class="btn-icon report-download" title="Download CSV">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="{% static 'js/reports.js' %}"></script>
+</body>
+</html>
