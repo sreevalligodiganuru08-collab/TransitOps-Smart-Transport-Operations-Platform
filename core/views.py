@@ -417,7 +417,7 @@ def add_trip(request):
             cargo_weight=request.POST["cargo_weight"],
             planned_distance=request.POST["planned_distance"],
             start_date=request.POST["start_date"],
-            end_date=request.POST["end_date"],
+            end_date=request.POST["end_date"] or None,
             status=request.POST["status"],
         )
 
@@ -440,7 +440,7 @@ def edit_trip(request, id):
         trip.cargo_weight = request.POST["cargo_weight"]
         trip.planned_distance = request.POST["planned_distance"]
         trip.start_date = request.POST["start_date"]
-        trip.end_date = request.POST["end_date"]
+        trip.end_date = request.POST["end_date"] or None
         trip.status = request.POST["status"]
         trip.save()
 
