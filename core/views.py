@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .forms import *
 from django.shortcuts import render, redirect, get_object_or_404
@@ -35,21 +36,24 @@ def logout_user(request):
 
 @login_required
 def dashboard(request):
-
     context = {
-        "vehicle_count": Vehicle.objects.count(),
-        "driver_count": Driver.objects.count(),
-        "trip_count": Trip.objects.count(),
-        "maintenance_count": Maintenance.objects.count(),
-        "fuel_logs": FuelLog.objects.count(),
-        "expense_count": Expense.objects.count(),
+    "vehicle_count": Vehicle.objects.count(),
+    "driver_count": Driver.objects.count(),
+    "trip_count": Trip.objects.count(),
+    "maintenance_count": Maintenance.objects.count(),
+    "fuel_count": FuelLog.objects.count(),
+    "expense_count": Expense.objects.count(),
 
-        "available_vehicles": Vehicle.objects.filter(status="Available").count(),
-        "maintenance_vehicles": Vehicle.objects.filter(status="Maintenance").count(),
+    "available_vehicles": Vehicle.objects.filter(status="Available").count(),
+    "maintenance_vehicles": Vehicle.objects.filter(status="Maintenance").count(),
 
-        "available_drivers": Driver.objects.filter(status="Available").count(),
-        "busy_drivers": Driver.objects.filter(status="On Trip").count(),
-    }
+    "available_drivers": Driver.objects.filter(status="Available").count(),
+    "busy_drivers": Driver.objects.filter(status="On Trip").count(),
+
+    "active_trips": Trip.objects.filter(status="In Progress").count(),
+    "completed_trips": Trip.objects.filter(status="Completed").count(),
+}
+
     context["total_fuel_cost"] = sum(
     f.fuel_cost for f in FuelLog.objects.all())
     context["total_expense"] = sum(
@@ -94,6 +98,7 @@ def add_vehicle(request):
             status=request.POST['status']
 
         )
+        messages.success(request, "Vehicle added successfully.")
 
         return redirect('vehicles')
 
@@ -115,6 +120,7 @@ def edit_vehicle(request, id):
         vehicle.status = request.POST['status']
 
         vehicle.save()
+        messages.success(request, "Vehicle updated successfully.")
 
         return redirect('vehicles')
 
@@ -128,6 +134,7 @@ def delete_vehicle(request, id):
     vehicle = get_object_or_404(Vehicle, id=id)
 
     vehicle.delete()
+    messages.success(request, "Vehicle deleted successfully.")
 
     return redirect('vehicles')
 
@@ -167,6 +174,7 @@ def add_driver(request):
             status=request.POST['status']
 
         )
+        messages.success(request, "Driver added successfully.")
 
         return redirect('drivers')
 
@@ -188,6 +196,7 @@ def edit_driver(request, id):
         driver.status = request.POST['status']
 
         driver.save()
+        messages.success(request, "Driver updated successfully.")
 
         return redirect('drivers')
 
@@ -201,6 +210,7 @@ def delete_driver(request, id):
     driver = get_object_or_404(Driver, id=id)
 
     driver.delete()
+    messages.success(request, "Driver deleted successfully.")
 
     return redirect('drivers')
 
@@ -244,6 +254,7 @@ def add_maintenance(request):
             cost=request.POST["cost"],
             status=request.POST["status"],
         )
+        messages.success(request, "Maintenance record added successfully.")
 
         return redirect("maintenance")
 
@@ -298,6 +309,7 @@ def add_expense(request):
             amount=request.POST["amount"],
             date=request.POST["date"],
         )
+        messages.success(request, "Expense added successfully.")
 
         return redirect("expenses")
 
@@ -373,6 +385,7 @@ def add_trip(request):
             end_date=request.POST["end_date"],
             status=request.POST["status"],
         )
+        messages.success(request, "Trip created successfully.")
 
         return redirect("trips")
 
@@ -393,6 +406,7 @@ def edit_trip(request, id):
         trip.end_date = request.POST["end_date"]
         trip.status = request.POST["status"]
         trip.save()
+        messages.success(request, "Trip updated successfully.")
 
         return redirect("trips")
 
@@ -401,7 +415,9 @@ def edit_trip(request, id):
 @login_required
 def delete_trip(request, id):
     Trip.objects.filter(id=id).delete()
+    messages.success(request, "Trip deleted successfully.")
     return redirect("trips")
+
 @login_required
 def fuel_list(request):
 
@@ -423,6 +439,7 @@ def add_fuel(request):
             fuel_cost=request.POST["fuel_cost"],
             date=request.POST["date"],
         )
+        messages.success(request, "Fuel log added successfully.")
 
         return redirect("fuel")
 

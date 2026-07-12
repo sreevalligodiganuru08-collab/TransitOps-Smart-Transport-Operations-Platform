@@ -25,10 +25,10 @@ Monitor your fleet operations and performance
     </div>
 
 ```
-<button class="btn btn-primary" type="button">
+<a href="{% url 'add_trip' %}" class="btn btn-primary">
     <i class="fa-solid fa-plus"></i>
     Add New Trip
-</button>
+</a>
 ```
 
 </section>
@@ -53,7 +53,7 @@ Monitor your fleet operations and performance
 
     <div class="stat-content">
         <p>Active Vehicles</p>
-        <h3 class="stat-number" data-target="128">0</h3>
+        <h3 class="stat-number" data-target="128">{{ available_vehicles }}</h3>
         <span>Currently on the road</span>
     </div>
 </article>
@@ -71,7 +71,7 @@ Monitor your fleet operations and performance
 
     <div class="stat-content">
         <p>Available Vehicles</p>
-        <h3 class="stat-number" data-target="42">0</h3>
+        <h3 class="stat-number" data-target="42">{{ available_vehicles }}</h3>
         <span>Ready for assignment</span>
     </div>
 </article>
@@ -89,7 +89,7 @@ Monitor your fleet operations and performance
 
     <div class="stat-content">
         <p>In Maintenance</p>
-        <h3 class="stat-number" data-target="16">0</h3>
+        <h3 class="stat-number" data-target="16">{{ maintenance_vehicles }}</h3>
         <span>Under service or repair</span>
     </div>
 </article>
@@ -107,7 +107,7 @@ Monitor your fleet operations and performance
 
     <div class="stat-content">
         <p>Drivers On Duty</p>
-        <h3 class="stat-number" data-target="96">0</h3>
+        <h3 class="stat-number" data-target="96">{{ busy_drivers }}</h3>
         <span>Currently active</span>
     </div>
 </article>
@@ -125,7 +125,7 @@ Monitor your fleet operations and performance
 
     <div class="stat-content">
         <p>Active Trips</p>
-        <h3 class="stat-number" data-target="74">0</h3>
+        <h3 class="stat-number" data-target="74">{{ active_trips }}</h3>
         <span>Trips currently running</span>
     </div>
 </article>
@@ -142,11 +142,11 @@ Monitor your fleet operations and performance
     </div>
 
     <div class="stat-content">
-        <p>Fleet Utilization</p>
+        <p>Expenses Logged</p>
         <h3>
-            <span class="stat-number" data-target="82">0</span>%
+            <span class="stat-number" data-target="82">{{ expense_count }}</span>%
         </h3>
-        <span>Overall fleet efficiency</span>
+        <span>Operational expenses</span>
     </div>
 </article>
 ```
