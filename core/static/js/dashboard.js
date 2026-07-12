@@ -5,55 +5,69 @@ document.addEventListener("DOMContentLoaded", function () {
    STATISTICS COUNTER ANIMATION
 ===================================================== */
 
+
 const counters = document.querySelectorAll(".stat-number");
 
 
-counters.forEach(function (counter) {
+counters.forEach(function(counter){
 
-    const target = Number(counter.dataset.target) || 0;
+
+    const target = Number(counter.innerText) || 0;
+
 
     const duration = 1200;
+
 
     const startTime = performance.now();
 
 
-    function updateCounter(currentTime) {
 
-        const elapsedTime = currentTime - startTime;
-
-        const progress = Math.min(
-            elapsedTime / duration,
-            1
-        );
+    function updateCounter(currentTime){
 
 
-        const easedProgress =
-            1 - Math.pow(1 - progress, 3);
+        const elapsed =
+            currentTime - startTime;
 
 
-        const currentValue =
-            Math.floor(target * easedProgress);
+        const progress =
+            Math.min(elapsed / duration,1);
 
 
-        counter.textContent = currentValue;
+
+        const value =
+            Math.floor(
+                target * progress
+            );
 
 
-        if (progress < 1) {
+
+        counter.innerText = value;
+
+
+
+        if(progress < 1){
 
             requestAnimationFrame(updateCounter);
 
-        } else {
+        }
+        else{
 
-            counter.textContent = target;
+            counter.innerText = target;
 
         }
+
 
     }
 
 
     requestAnimationFrame(updateCounter);
 
+
+
 });
+
+
+
 
 
 
@@ -61,11 +75,10 @@ counters.forEach(function (counter) {
    CHECK CHART.JS
 ===================================================== */
 
-if (typeof Chart === "undefined") {
 
-    console.warn(
-        "Chart.js is not loaded."
-    );
+if(typeof Chart === "undefined"){
+
+    console.warn("Chart.js not loaded");
 
     return;
 
@@ -73,303 +86,71 @@ if (typeof Chart === "undefined") {
 
 
 
-/* =====================================================
-   GLOBAL CHART SETTINGS
-===================================================== */
-
-Chart.defaults.font.family =
-    "Inter, sans-serif";
-
-
-Chart.defaults.color =
-    "#64748b";
-
-
 
 /* =====================================================
    FLEET PERFORMANCE CHART
 ===================================================== */
 
+
 const fleetCanvas =
-    document.getElementById(
-        "fleetPerformanceChart"
-    );
+document.getElementById(
+    "fleetPerformanceChart"
+);
 
 
-if (fleetCanvas) {
 
+if(fleetCanvas){
 
-    const ctx =
-        fleetCanvas.getContext("2d");
 
 
-    const gradient =
-        ctx.createLinearGradient(
-            0,
-            0,
-            0,
-            300
-        );
+    new Chart(
+        fleetCanvas,
+        {
 
-
-    gradient.addColorStop(
-        0,
-        "rgba(37,99,235,0.30)"
-    );
-
-
-    gradient.addColorStop(
-        1,
-        "rgba(37,99,235,0.02)"
-    );
-
-
-
-    new Chart(ctx, {
-
-
-        type: "line",
-
-
-        data: {
-
-
-            labels: [
-                "Mon",
-                "Tue",
-                "Wed",
-                "Thu",
-                "Fri",
-                "Sat",
-                "Sun"
-            ],
-
-
-            datasets: [
-
-                {
-
-                    label:
-                    "Active Vehicles",
-
-
-                    data: [
-                        82,
-                        96,
-                        91,
-                        110,
-                        104,
-                        121,
-                        128
-                    ],
-
-
-                    borderColor:
-                    "#2563eb",
-
-
-                    backgroundColor:
-                    gradient,
-
-
-                    borderWidth: 3,
-
-
-                    fill: true,
-
-
-                    tension: 0.4,
-
-
-                    pointRadius: 4,
-
-
-                    pointHoverRadius: 6,
-
-
-                    pointBackgroundColor:
-                    "#ffffff",
-
-
-                    pointBorderColor:
-                    "#2563eb",
-
-
-                    pointBorderWidth: 2
-
-                }
-
-            ]
-
-        },
-
-
-        options: {
-
-
-            responsive: true,
-
-
-            maintainAspectRatio: false,
-
-
-            plugins: {
-
-
-                legend: {
-
-                    display: false
-
-                },
-
-
-                tooltip: {
-
-
-                    backgroundColor:
-                    "#0f172a",
-
-
-                    padding: 12,
-
-
-                    cornerRadius: 8,
-
-
-                    displayColors: false
-
-                }
-
-            },
-
-
-            scales: {
-
-
-                x: {
-
-
-                    grid: {
-
-                        display:false
-
-                    },
-
-
-                    border: {
-
-                        display:false
-
-                    }
-
-                },
-
-
-                y: {
-
-
-                    beginAtZero:true,
-
-
-                    suggestedMax:150,
-
-
-                    grid: {
-
-                        color:"#e2e8f0"
-
-                    },
-
-
-                    border: {
-
-                        display:false
-
-                    }
-
-                }
-
-
-            }
-
-
-        }
-
-
-    });
-
-
-}
-
-
-
-/* =====================================================
-   VEHICLE STATUS DOUGHNUT CHART
-===================================================== */
-
-
-const statusCanvas =
-    document.getElementById(
-        "vehicleStatusChart"
-    );
-
-
-if (statusCanvas) {
-
-
-    new Chart(statusCanvas, {
-
-
-        type:"doughnut",
+        type:"line",
 
 
         data:{
 
 
             labels:[
-
-                "Active",
-                "Available",
-                "Maintenance"
-
+                "Vehicles",
+                "Drivers",
+                "Trips",
+                "Maintenance",
+                "Expenses"
             ],
 
 
             datasets:[
 
-
-                {
-
-
-                    data:[
-
-                        128,
-                        42,
-                        16
-
-                    ],
+            {
 
 
-                    backgroundColor:[
-
-                        "#2563eb",
-                        "#16a34a",
-                        "#f59e0b"
-
-                    ],
+            label:"Operations",
 
 
-                    borderColor:
-                    "#ffffff",
+            data:[
+
+                window.vehicleCount,
+                window.driverCount,
+                window.tripCount,
+                window.maintenanceCount,
+                window.expenseCount
+
+            ],
 
 
-                    borderWidth:4,
+            borderWidth:3,
 
 
-                    hoverOffset:6
+            tension:0.4,
 
 
-                }
+            fill:true
+
+
+            }
 
 
             ]
@@ -386,32 +167,11 @@ if (statusCanvas) {
             maintainAspectRatio:false,
 
 
-            cutout:"70%",
-
-
             plugins:{
 
 
                 legend:{
-
                     display:false
-
-                },
-
-
-                tooltip:{
-
-
-                    backgroundColor:
-                    "#0f172a",
-
-
-                    padding:12,
-
-
-                    cornerRadius:8
-
-
                 }
 
 
@@ -424,7 +184,120 @@ if (statusCanvas) {
     });
 
 
+
 }
+
+
+
+
+
+
+
+/* =====================================================
+   VEHICLE STATUS DOUGHNUT
+===================================================== */
+
+
+const statusCanvas =
+document.getElementById(
+    "vehicleStatusChart"
+);
+
+
+
+if(statusCanvas){
+
+
+
+new Chart(
+
+statusCanvas,
+
+
+{
+
+
+type:"doughnut",
+
+
+
+data:{
+
+
+labels:[
+
+"Available",
+"Maintenance",
+"Other"
+
+],
+
+
+
+datasets:[{
+
+
+data:[
+
+
+window.availableVehicles,
+
+window.maintenanceVehicles,
+
+window.otherVehicles
+
+
+]
+
+
+
+}]
+
+
+
+},
+
+
+
+options:{
+
+
+responsive:true,
+
+
+maintainAspectRatio:false,
+
+
+cutout:"70%",
+
+
+plugins:{
+
+
+legend:{
+
+display:true
+
+}
+
+
+}
+
+
+}
+
+
+
+}
+
+
+
+);
+
+
+
+}
+
 
 
 

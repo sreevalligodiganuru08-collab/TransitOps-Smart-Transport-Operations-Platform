@@ -32,26 +32,56 @@ def logout_user(request):
     logout(request)
 
     return redirect("login")
-
 @login_required
 def dashboard(request):
 
+    vehicles = Vehicle.objects.all()
+    trips = Trip.objects.all().order_by('-id')[:5]
+
     context = {
+
+        # Vehicle stats
         "vehicle_count": Vehicle.objects.count(),
-        "driver_count": Driver.objects.count(),
-        "trip_count": Trip.objects.count(),
-        "maintenance_count": Maintenance.objects.count(),
-        "fuel_logs": FuelLog.objects.count(),
-        "expense_count": Expense.objects.count(),
 
-        "available_vehicles": Vehicle.objects.filter(status="Available").count(),
-        "maintenance_vehicles": Vehicle.objects.filter(status="Maintenance").count(),
+        "available_vehicles":
+            Vehicle.objects.filter(status="Available").count(),
 
-        "available_drivers": Driver.objects.filter(status="Available").count(),
-        "busy_drivers": Driver.objects.filter(status="On Trip").count(),
+        "maintenance_vehicles":
+            Vehicle.objects.filter(status="Maintenance").count(),
+
+
+        # Driver stats
+        "driver_count":
+            Driver.objects.count(),
+
+        "busy_drivers":
+            Driver.objects.filter(status="On Trip").count(),
+
+
+        # Trip stats
+        "trip_count":
+            Trip.objects.count(),
+
+        "active_trips":
+            Trip.objects.filter(status="Active").count(),
+
+
+        # Expenses
+        "expense_count":
+            Expense.objects.count(),
+
+
+        # Recent activity
+        "recent_trips": trips,
+
     }
 
-    return render(request, "dashboard.html", context)
+
+    return render(
+        request,
+        "dashboard.html",
+        context
+    )
 
 
 # -------------------------

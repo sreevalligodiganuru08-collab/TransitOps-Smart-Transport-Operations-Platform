@@ -675,24 +675,15 @@ Time
 
 </thead>
 
-
-
-
-
 <tbody>
 
-
-
-
+{% for trip in recent_trips %}
 
 <tr>
 
-
 <td>
 
-
 <div class="vehicle-cell">
-
 
 <div class="vehicle-icon">
 
@@ -701,304 +692,72 @@ Time
 </div>
 
 
-
 <div>
 
 <strong>
-TS-09-AB-1245
+{{ trip.vehicle.registration_number }}
 </strong>
 
-
 <span>
-City Bus
+{{ trip.vehicle.vehicle_type }}
 </span>
 
+</div>
 
 </div>
 
-
-</div>
-
-
 </td>
-
-
-
-
-
-<td>
-Rahul Sharma
-</td>
-
-
-
-<td>
-Hyderabad → Warangal
-</td>
-
 
 
 <td>
 
-<span class="status-badge status-active">
+{{ trip.driver.name }}
 
-Active
+</td>
+
+
+<td>
+
+{{ trip.source }} → {{ trip.destination }}
+
+</td>
+
+
+<td>
+
+<span class="status-badge">
+
+{{ trip.status }}
 
 </span>
 
 </td>
 
 
-
 <td>
-10 mins ago
-</td>
 
+Recently
+
+</td>
 
 
 </tr>
 
 
-
-
-
-
+{% empty %}
 
 <tr>
 
+<td colspan="5">
 
-<td>
-
-
-<div class="vehicle-cell">
-
-
-<div class="vehicle-icon">
-
-<i class="fa-solid fa-truck"></i>
-
-</div>
-
-
-
-<div>
-
-<strong>
-TS-10-CD-5678
-</strong>
-
-
-<span>
-Transport Truck
-</span>
-
-
-</div>
-
-
-</div>
-
+No trips available
 
 </td>
-
-
-
-
-
-<td>
-Arjun Reddy
-</td>
-
-
-
-<td>
-Nizamabad → Hyderabad
-</td>
-
-
-
-<td>
-
-<span class="status-badge status-completed">
-
-Completed
-
-</span>
-
-</td>
-
-
-
-<td>
-25 mins ago
-</td>
-
-
 
 </tr>
 
 
-
-
-
-
-
-
-<tr>
-
-
-<td>
-
-
-<div class="vehicle-cell">
-
-
-<div class="vehicle-icon">
-
-<i class="fa-solid fa-van-shuttle"></i>
-
-</div>
-
-
-
-<div>
-
-<strong>
-AP-25-EF-9012
-</strong>
-
-
-<span>
-Passenger Van
-</span>
-
-
-</div>
-
-
-</div>
-
-
-</td>
-
-
-
-
-
-<td>
-Vikram Kumar
-</td>
-
-
-
-<td>
-Armur → Nizamabad
-</td>
-
-
-
-<td>
-
-<span class="status-badge status-maintenance">
-
-Maintenance
-
-</span>
-
-</td>
-
-
-
-<td>
-1 hour ago
-</td>
-
-
-
-</tr>
-
-
-
-
-
-
-
-
-<tr>
-
-
-<td>
-
-
-<div class="vehicle-cell">
-
-
-<div class="vehicle-icon">
-
-<i class="fa-solid fa-bus-simple"></i>
-
-</div>
-
-
-
-<div>
-
-<strong>
-TS-16-GH-3456
-</strong>
-
-
-<span>
-Express Bus
-</span>
-
-
-</div>
-
-
-</div>
-
-
-</td>
-
-
-
-
-
-<td>
-Sandeep Rao
-</td>
-
-
-
-<td>
-Karimnagar → Hyderabad
-</td>
-
-
-
-<td>
-
-<span class="status-badge status-active">
-
-Active
-
-</span>
-
-</td>
-
-
-
-<td>
-2 hours ago
-</td>
-
-
-
-</tr>
-
-
-
+{% endfor %}
 
 
 </tbody>
@@ -1030,9 +789,23 @@ Active
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+window.vehicleCount = {{ vehicle_count }};
+window.driverCount = {{ driver_count }};
+window.tripCount = {{ trip_count }};
+window.maintenanceCount = {{ maintenance_vehicles }};
+window.expenseCount = {{ expense_count }};
+
+window.availableVehicles = {{ available_vehicles }};
+window.otherVehicles =
+{{ vehicle_count }} - {{ available_vehicles }} - {{ maintenance_vehicles }};
+
+</script>
 
 
 <script src="{% static 'js/dashboard.js' %}"></script>
+
 
 
 

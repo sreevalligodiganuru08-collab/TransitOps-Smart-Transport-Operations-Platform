@@ -40,4 +40,5 @@ path('expenses/', views.expense_list, name='expenses'),
 path('expenses/add/', views.add_expense, name='add_expense'),
 path('expenses/edit/<int:id>/', views.edit_expense, name='edit_expense'),
 path('expenses/delete/<int:id>/', views.delete_expense, name='delete_expense'),
+path('reports/', views.reports, name='reports'),
 ]
