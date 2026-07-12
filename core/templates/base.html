@@ -200,6 +200,32 @@
 
 
 
+        <a href="{% url 'fuel' %}"
+           class="nav-link">
+
+            <i class="fa-solid fa-gas-pump"></i>
+
+            <span>
+                Fuel Logs
+            </span>
+
+        </a>
+
+
+
+        <a href="{% url 'expenses' %}"
+           class="nav-link">
+
+            <i class="fa-solid fa-wallet"></i>
+
+            <span>
+                Expenses
+            </span>
+
+        </a>
+
+
+
         <a href="{% url 'reports' %}"
            class="nav-link">
 
@@ -370,9 +396,13 @@ placeholder="Search..."
 
 
 
+<div class="notification-wrapper">
+
 <button
 class="navbar-icon-btn notification-btn"
-type="button">
+id="notificationToggle"
+type="button"
+aria-label="Notifications">
 
 
 <i class="fa-regular fa-bell"></i>
@@ -384,6 +414,51 @@ type="button">
 
 
 </button>
+
+<div class="notification-dropdown" id="notificationDropdown">
+
+<div class="notification-dropdown-header">
+<h4>Notifications</h4>
+<span class="notification-count-pill">3 new</span>
+</div>
+
+<div class="notification-list">
+
+<div class="notification-item">
+<div class="notification-icon icon-orange">
+<i class="fa-solid fa-id-card"></i>
+</div>
+<div>
+<p>Driver license expiring soon</p>
+<span>Alex Carter's license expires in 5 days</span>
+</div>
+</div>
+
+<div class="notification-item">
+<div class="notification-icon icon-blue">
+<i class="fa-solid fa-screwdriver-wrench"></i>
+</div>
+<div>
+<p>Vehicle due for maintenance</p>
+<span>MH-12-AB-4321 has crossed its service interval</span>
+</div>
+</div>
+
+<div class="notification-item">
+<div class="notification-icon icon-green">
+<i class="fa-solid fa-route"></i>
+</div>
+<div>
+<p>Trip dispatched</p>
+<span>Pune &rarr; Mumbai is now in progress</span>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 
 

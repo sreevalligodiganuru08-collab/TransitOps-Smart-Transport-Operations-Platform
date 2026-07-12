@@ -232,7 +232,15 @@ def trip_list(request):
         "drivers": Driver.objects.filter(status="Available"),
     }
 
+<<<<<<< HEAD
     return render(request,"trips.html",context)
+=======
+    return render(request, 'trips.html', {
+        'trips': trips,
+        'vehicles': Vehicle.objects.all(),
+        'drivers': Driver.objects.all(),
+    })
+>>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 
 
 # -------------------------
@@ -244,9 +252,15 @@ def maintenance_list(request):
     maintenance = Maintenance.objects.all().order_by("-id")
     vehicles = Vehicle.objects.all()
 
+<<<<<<< HEAD
     return render(request, "maintenance.html", {
         "maintenance": maintenance,
         "vehicles": vehicles,
+=======
+    return render(request, 'maintenance.html', {
+        'maintenance': maintenance,
+        'vehicles': Vehicle.objects.all(),
+>>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
     })
 
 
@@ -265,7 +279,9 @@ def add_maintenance(request):
 
         return redirect("maintenance")
 
-    return render(request, "maintenance.html")
+    return render(request, "maintenance.html", {
+        "vehicles": Vehicle.objects.all(),
+    })
 @login_required
 def edit_maintenance(request, id):
 
@@ -287,9 +303,15 @@ def edit_maintenance(request, id):
         return redirect("maintenance")
 
     return render(request, "maintenance.html", {
+<<<<<<< HEAD
         "maintenance": Maintenance.objects.all(),
         "vehicles": Vehicle.objects.all(),
         "edit_maintenance": maintenance,
+=======
+        "maintenance": maintenance,
+        "maintenance_record": maintenance,
+        "vehicles": Vehicle.objects.all(),
+>>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
     })
 
 
@@ -309,7 +331,8 @@ def expense_list(request):
     expenses = Expense.objects.all()
 
     return render(request, 'expenses.html', {
-        'expenses': expenses
+        'expenses': expenses,
+        'vehicles': Vehicle.objects.all(),
     })
 
 @login_required
@@ -326,7 +349,9 @@ def add_expense(request):
 
         return redirect("expenses")
 
-    return render(request, "expenses.html")
+    return render(request, "expenses.html", {
+        "vehicles": Vehicle.objects.all(),
+    })
 @login_required
 def edit_expense(request, id):
 
@@ -342,7 +367,8 @@ def edit_expense(request, id):
         return redirect("expenses")
 
     return render(request, "expenses.html", {
-        "expense": expense
+        "expense": expense,
+        "vehicles": Vehicle.objects.all(),
     })
 
 
@@ -365,11 +391,24 @@ def reports(request):
     trips = Trip.objects.all()
     maintenance = Maintenance.objects.all()
     expenses = Expense.objects.all()
+    fuel_logs = FuelLog.objects.all()
 
     total_expense = sum(
         float(exp.amount)
         for exp in expenses
     )
+
+    total_fuel_litres = sum(float(f.fuel_litres) for f in fuel_logs)
+    total_fuel_cost = sum(float(f.fuel_cost) for f in fuel_logs)
+    total_maintenance_cost = sum(float(m.cost) for m in maintenance)
+    total_planned_distance = sum(float(t.planned_distance) for t in trips)
+
+    vehicle_count = vehicles.count()
+    vehicles_in_transit_count = vehicles.filter(status="In Transit").count()
+
+    fleet_utilization = round((vehicles_in_transit_count / vehicle_count * 100), 1) if vehicle_count else 0
+    fuel_efficiency = round((total_planned_distance / total_fuel_litres), 1) if total_fuel_litres else 0
+    operational_cost = total_maintenance_cost + total_fuel_cost
 
     context = {
         "vehicles": vehicles,
@@ -377,7 +416,18 @@ def reports(request):
         "trips": trips,
         "maintenance": maintenance,
         "expenses": expenses,
+        "fuel_logs": fuel_logs,
         "total_expense": total_expense,
+        "total_fuel_litres": total_fuel_litres,
+        "total_fuel_cost": total_fuel_cost,
+        "total_maintenance_cost": total_maintenance_cost,
+        "total_planned_distance": total_planned_distance,
+        "fleet_utilization": fleet_utilization,
+        "fuel_efficiency": fuel_efficiency,
+        "operational_cost": operational_cost,
+        "vehicles_available_count": vehicles.filter(status="Available").count(),
+        "vehicles_in_transit_count": vehicles_in_transit_count,
+        "vehicles_maintenance_count": vehicles.filter(status="Maintenance").count(),
     }
 
     return render(request, "reports.html", context)
@@ -403,6 +453,13 @@ def add_trip(request):
 
         return redirect("trips")
 
+<<<<<<< HEAD
+=======
+    return render(request, "trips.html", {
+        "vehicles": Vehicle.objects.all(),
+        "drivers": Driver.objects.all(),
+    })
+>>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 
     return render(request,"trips.html",{
         "vehicles":vehicles,
@@ -442,6 +499,7 @@ def edit_trip(request, id):
 
         return redirect("trips")
 
+<<<<<<< HEAD
     return render(
         request,
         "trips.html",
@@ -452,6 +510,14 @@ def edit_trip(request, id):
             "edit_trip": trip,
         },
     )
+=======
+    return render(request, "trips.html", {
+        "trip": trip,
+        "vehicles": Vehicle.objects.all(),
+        "drivers": Driver.objects.all(),
+    })
+
+>>>>>>> 5b98f44eabf571389fa792b27c0342d21238fc71
 @login_required
 def delete_trip(request, id):
     Trip.objects.filter(id=id).delete()
@@ -462,7 +528,8 @@ def fuel_list(request):
     fuel = FuelLog.objects.all()
 
     return render(request, "fuel.html", {
-        "fuel": fuel
+        "fuel": fuel,
+        "vehicles": Vehicle.objects.all(),
     })
 
 
@@ -480,7 +547,9 @@ def add_fuel(request):
 
         return redirect("fuel")
 
-    return render(request, "fuel.html")
+    return render(request, "fuel.html", {
+        "vehicles": Vehicle.objects.all(),
+    })
 
 @login_required
 def edit_fuel(request, id):
@@ -497,7 +566,9 @@ def edit_fuel(request, id):
         return redirect("fuel")
 
     return render(request, "fuel.html", {
-        "fuel": fuel
+        "fuel": fuel,
+        "fuel_record": fuel,
+        "vehicles": Vehicle.objects.all(),
     })
 
 

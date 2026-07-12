@@ -1,6 +1,7 @@
 /* ==========================================================================
-   TransitOps - Reports & Analytics UI behaviour
-   Dummy charts, counters, and client-side CSV export. No API calls.
+   TransitOps - Reports & Analytics page behaviour
+   Charts and CSV export driven by real data passed in via window.* globals
+   (set inline in reports.html from the Django context). No API calls.
    ========================================================================== */
 
 (function () {
@@ -14,35 +15,6 @@
     return Array.prototype.slice.call((scope || document).querySelectorAll(selector));
   }
 
-  function showToast(message, type) {
-    var toast = $("#toast");
-    if (!toast) return;
-    toast.textContent = message;
-    toast.className = "toast show" + (type ? " " + type : "");
-    clearTimeout(showToast._timer);
-    showToast._timer = setTimeout(function () {
-      toast.className = "toast";
-    }, 2600);
-  }
-
-  /* ---------------------------------------------------------------- */
-  /* Sidebar toggle (mobile)                                          */
-  /* ---------------------------------------------------------------- */
-
-  var sidebar = $("#sidebar");
-  var sidebarToggle = $("#sidebarToggle");
-  var sidebarBackdrop = $("#sidebarBackdrop");
-
-  function toggleSidebar(open) {
-    if (!sidebar) return;
-    var shouldOpen = typeof open === "boolean" ? open : !sidebar.classList.contains("open");
-    sidebar.classList.toggle("open", shouldOpen);
-    if (sidebarBackdrop) sidebarBackdrop.classList.toggle("open", shouldOpen);
-  }
-
-  if (sidebarToggle) sidebarToggle.addEventListener("click", function () { toggleSidebar(); });
-  if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", function () { toggleSidebar(false); });
-
   /* ---------------------------------------------------------------- */
   /* KPI counter animation                                            */
   /* ---------------------------------------------------------------- */
@@ -50,14 +22,14 @@
   function animateCounters() {
     $all("[data-counter]").forEach(function (el) {
       var target = parseFloat(el.getAttribute("data-target")) || 0;
-      var decimals = parseInt(el.getAttribute("data-decimals"), 10) || 0;
       var prefix = el.getAttribute("data-prefix") || "";
       var suffix = el.getAttribute("data-suffix") || "";
+      var hasDecimals = target % 1 !== 0;
       var duration = 900;
       var start = null;
 
       function format(value) {
-        var num = decimals ? value.toFixed(decimals) : Math.round(value).toLocaleString("en-IN");
+        var num = hasDecimals ? value.toFixed(1) : Math.round(value).toLocaleString("en-IN");
         return prefix + num + suffix;
       }
 
@@ -77,37 +49,45 @@
   animateCounters();
 
   /* ---------------------------------------------------------------- */
-  /* Charts (Chart.js) - dummy datasets                                */
+  /* Charts (Chart.js) - fed by real data from window.*                */
   /* ---------------------------------------------------------------- */
+
+  function groupByMonth(entries) {
+    var buckets = {};
+    entries.forEach(function (entry) {
+      if (!entry.date) return;
+      var month = entry.date.slice(0, 7);
+      buckets[month] = (buckets[month] || 0) + (parseFloat(entry.amount) || 0);
+    });
+    var months = Object.keys(buckets).sort();
+    return {
+      labels: months.map(function (m) {
+        var d = new Date(m + "-01");
+        return d.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+      }),
+      data: months.map(function (m) { return buckets[m]; })
+    };
+  }
 
   function renderCharts() {
     if (typeof Chart === "undefined") return;
 
-    Chart.defaults.font.family = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
-    Chart.defaults.color = "#6b7280";
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = "#64748b";
 
-    var barCtx = $("#utilizationBarChart");
+    var statusCounts = window.vehicleStatusCounts || { available: 0, inTransit: 0, maintenance: 0 };
+    var barCtx = $("#vehicleStatusBarChart");
     if (barCtx) {
       new Chart(barCtx, {
         type: "bar",
         data: {
-          labels: ["Van-05", "Van-08", "Truck-12", "Truck-03"],
-          datasets: [
-            {
-              label: "Utilized (days)",
-              data: [22, 18, 25, 20],
-              backgroundColor: "#2563eb",
-              borderRadius: 6,
-              maxBarThickness: 34
-            },
-            {
-              label: "Idle (days)",
-              data: [8, 12, 5, 10],
-              backgroundColor: "#e5e7eb",
-              borderRadius: 6,
-              maxBarThickness: 34
-            }
-          ]
+          labels: ["Available", "In Transit", "Maintenance"],
+          datasets: [{
+            data: [statusCounts.available, statusCounts.inTransit, statusCounts.maintenance],
+            backgroundColor: ["#16a34a", "#2563eb", "#f59e0b"],
+            borderRadius: 6,
+            maxBarThickness: 48
+          }]
         },
         options: {
           responsive: true,
@@ -115,53 +95,51 @@
           plugins: { legend: { display: false } },
           scales: {
             x: { grid: { display: false } },
-            y: { beginAtZero: true, grid: { color: "#f3f4f6" } }
+            y: { beginAtZero: true, ticks: { precision: 0 } }
           }
         }
       });
     }
 
+    var costs = window.costBreakdown || { fuel: 0, maintenance: 0, expenses: 0 };
     var pieCtx = $("#costPieChart");
     if (pieCtx) {
       new Chart(pieCtx, {
         type: "doughnut",
         data: {
-          labels: ["Fuel", "Maintenance", "Tolls & Other"],
-          datasets: [
-            {
-              data: [58, 32, 10],
-              backgroundColor: ["#2563eb", "#0ea5e9", "#93c5fd"],
-              borderWidth: 0
-            }
-          ]
+          labels: ["Fuel", "Maintenance", "Other Expenses"],
+          datasets: [{
+            data: [costs.fuel, costs.maintenance, costs.expenses],
+            backgroundColor: ["#2563eb", "#c2410c", "#7c3aed"],
+            borderWidth: 0
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           cutout: "62%",
-          plugins: { legend: { position: "bottom", labels: { boxWidth: 10, padding: 16 } } }
+          plugins: { legend: { display: false } }
         }
       });
     }
 
+    var monthly = groupByMonth(window.costEntries || []);
     var lineCtx = $("#monthlyExpenseChart");
     if (lineCtx) {
       new Chart(lineCtx, {
         type: "line",
         data: {
-          labels: ["Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-          datasets: [
-            {
-              label: "Total Expense (₹)",
-              data: [186000, 204500, 195200, 231800, 268400, 284650],
-              borderColor: "#2563eb",
-              backgroundColor: "rgba(37, 99, 235, 0.12)",
-              fill: true,
-              tension: 0.35,
-              pointRadius: 4,
-              pointBackgroundColor: "#2563eb"
-            }
-          ]
+          labels: monthly.labels,
+          datasets: [{
+            label: "Total Expense (₹)",
+            data: monthly.data,
+            borderColor: "#2563eb",
+            backgroundColor: "rgba(37, 99, 235, 0.12)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointBackgroundColor: "#2563eb"
+          }]
         },
         options: {
           responsive: true,
@@ -169,7 +147,7 @@
           plugins: { legend: { display: false } },
           scales: {
             x: { grid: { display: false } },
-            y: { grid: { color: "#f3f4f6" } }
+            y: { grid: { color: "#f1f5f9" } }
           }
         }
       });
@@ -179,19 +157,17 @@
   renderCharts();
 
   /* ---------------------------------------------------------------- */
-  /* Export CSV (client-side, dummy report data)                      */
+  /* Export CSV (real vehicle summary data)                            */
   /* ---------------------------------------------------------------- */
 
   var exportCsvBtn = $("#exportCsvBtn");
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener("click", function () {
-      var rows = [
-        ["Vehicle", "Fleet Utilization (%)", "Fuel Efficiency (km/L)", "Operational Cost (₹)", "Vehicle ROI (%)"],
-        ["Van-05", "82", "9.1", "58200", "24.3"],
-        ["Van-08", "71", "8.6", "42600", "18.9"],
-        ["Truck-12", "88", "6.4", "112400", "22.1"],
-        ["Truck-03", "76", "7.9", "71450", "19.7"]
-      ];
+      var vehicles = window.vehicleSummary || [];
+      var rows = [["Registration Number", "Status", "Max Capacity (kg)", "Acquisition Cost (₹)"]];
+      vehicles.forEach(function (v) {
+        rows.push([v.registration, v.status, v.capacity, v.acquisitionCost]);
+      });
 
       var csvContent = rows.map(function (row) {
         return row.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(",");
@@ -206,8 +182,6 @@
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
-      showToast("Report exported as CSV.", "success");
     });
   }
 
@@ -218,20 +192,7 @@
   var exportPdfBtn = $("#exportPdfBtn");
   if (exportPdfBtn) {
     exportPdfBtn.addEventListener("click", function () {
-      showToast("Preparing PDF export...", "success");
-      setTimeout(function () { window.print(); }, 300);
+      window.print();
     });
   }
-
-  /* ---------------------------------------------------------------- */
-  /* Recent reports: per-row download (dummy)                         */
-  /* ---------------------------------------------------------------- */
-
-  $all(".report-download").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var row = btn.closest("tr");
-      var name = row ? row.querySelector(".report-name span").textContent : "Report";
-      showToast('"' + name + '" download started.', "success");
-    });
-  });
 })();
