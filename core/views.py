@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Trip, Vehicle, Driver
 from .forms import *
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
@@ -63,7 +65,7 @@ def dashboard(request):
             Trip.objects.count(),
 
         "active_trips":
-            Trip.objects.filter(status="Active").count(),
+            Trip.objects.filter(status="Ongoing").count(),
 
 
         # Expenses
@@ -224,11 +226,13 @@ def delete_driver(request, id):
 @login_required
 def trip_list(request):
 
-    trips = Trip.objects.all()
+    context = {
+        "trips": Trip.objects.all(),
+        "vehicles": Vehicle.objects.filter(status="Available"),
+        "drivers": Driver.objects.filter(status="Available"),
+    }
 
-    return render(request, 'trips.html', {
-        'trips': trips
-    })
+    return render(request,"trips.html",context)
 
 
 # -------------------------
@@ -237,10 +241,12 @@ def trip_list(request):
 @login_required
 def maintenance_list(request):
 
-    maintenance = Maintenance.objects.all()
+    maintenance = Maintenance.objects.all().order_by("-id")
+    vehicles = Vehicle.objects.all()
 
-    return render(request, 'maintenance.html', {
-        'maintenance': maintenance
+    return render(request, "maintenance.html", {
+        "maintenance": maintenance,
+        "vehicles": vehicles,
     })
 
 
@@ -266,17 +272,24 @@ def edit_maintenance(request, id):
     maintenance = get_object_or_404(Maintenance, id=id)
 
     if request.method == "POST":
-        maintenance.vehicle_id = request.POST["vehicle"]
-        maintenance.maintenance_type = request.POST["maintenance_type"]
-        maintenance.maintenance_date = request.POST["maintenance_date"]
-        maintenance.cost = request.POST["cost"]
-        maintenance.status = request.POST["status"]
+
+        maintenance.vehicle_id = request.POST.get("vehicle")
+        maintenance.maintenance_type = request.POST.get("maintenance_type")
+        maintenance.maintenance_date = request.POST.get("maintenance_date")
+        maintenance.cost = request.POST.get("cost")
+
+        status = request.POST.get("status")
+        if status:
+            maintenance.status = status
+
         maintenance.save()
 
         return redirect("maintenance")
 
     return render(request, "maintenance.html", {
-        "maintenance": maintenance
+        "maintenance": Maintenance.objects.all(),
+        "vehicles": Vehicle.objects.all(),
+        "edit_maintenance": maintenance,
     })
 
 
@@ -368,9 +381,11 @@ def reports(request):
     }
 
     return render(request, "reports.html", context)
-
 @login_required
 def add_trip(request):
+
+    vehicles = Vehicle.objects.all()
+    drivers = Driver.objects.all()
 
     if request.method == "POST":
 
@@ -388,28 +403,55 @@ def add_trip(request):
 
         return redirect("trips")
 
-    return render(request, "trips.html")
 
+    return render(request,"trips.html",{
+        "vehicles":vehicles,
+        "drivers":drivers
+    })
+
+from django.shortcuts import render, redirect, get_object_or_404
 @login_required
 def edit_trip(request, id):
+
     trip = get_object_or_404(Trip, id=id)
 
     if request.method == "POST":
-        trip.vehicle_id = request.POST["vehicle"]
-        trip.driver_id = request.POST["driver"]
-        trip.source = request.POST["source"]
-        trip.destination = request.POST["destination"]
-        trip.cargo_weight = request.POST["cargo_weight"]
-        trip.planned_distance = request.POST["planned_distance"]
-        trip.start_date = request.POST["start_date"]
-        trip.end_date = request.POST["end_date"]
-        trip.status = request.POST["status"]
+
+        trip.source = request.POST.get("source")
+        trip.destination = request.POST.get("destination")
+
+        trip.vehicle = Vehicle.objects.get(
+            id=request.POST.get("vehicle")
+        )
+
+        trip.driver = Driver.objects.get(
+            id=request.POST.get("driver")
+        )
+
+        trip.cargo_weight = request.POST.get("cargo_weight")
+        trip.planned_distance = request.POST.get("planned_distance")
+        trip.start_date = request.POST.get("start_date")
+        trip.end_date = request.POST.get("end_date")
+
+        # Keep existing status if no status is sent from the form
+        status = request.POST.get("status")
+        if status:
+            trip.status = status
+
         trip.save()
 
         return redirect("trips")
 
-    return render(request, "trips.html", {"trip": trip})
-
+    return render(
+        request,
+        "trips.html",
+        {
+            "trips": Trip.objects.all(),
+            "vehicles": Vehicle.objects.all(),
+            "drivers": Driver.objects.all(),
+            "edit_trip": trip,
+        },
+    )
 @login_required
 def delete_trip(request, id):
     Trip.objects.filter(id=id).delete()

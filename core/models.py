@@ -42,7 +42,7 @@ class Driver(models.Model):
 class Trip(models.Model):
     STATUS_CHOICES = [
         ('Scheduled', 'Scheduled'),
-        ('Ongoing', 'Ongoing'),
+        ('Active', 'Active'),
         ('Completed', 'Completed'),
     ]
 
