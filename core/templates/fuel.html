@@ -2,15 +2,15 @@
 {% load static %}
 
 {% block title %}
-Expenses | TransitOps
+Fuel Logs | TransitOps
 {% endblock %}
 
 {% block page_title %}
-Expenses
+Fuel Logs
 {% endblock %}
 
 {% block page_subtitle %}
-Track tolls, parking, and other operational costs per vehicle
+Track fuel consumption and cost per vehicle
 {% endblock %}
 
 {% block extra_css %}
@@ -19,47 +19,47 @@ Track tolls, parking, and other operational costs per vehicle
 
 {% block content %}
 
-{% if expense %}
+{% if fuel_record %}
 
 <section class="dashboard-card">
 
     <div class="card-header">
         <div>
-            <h3>Edit Expense</h3>
-            <p>Update the expense for {{ expense.vehicle.registration_number }}</p>
+            <h3>Edit Fuel Record</h3>
+            <p>Update the fuel log for {{ fuel_record.vehicle.registration_number }}</p>
         </div>
-        <a href="{% url 'expenses' %}" class="btn btn-secondary">
+        <a href="{% url 'fuel' %}" class="btn btn-secondary">
             <i class="fa-solid fa-arrow-left"></i>
-            Back to Expenses
+            Back to Fuel Logs
         </a>
     </div>
 
-    <form method="POST" action="{% url 'edit_expense' expense.id %}">
+    <form method="POST" action="{% url 'edit_fuel' fuel_record.id %}">
         {% csrf_token %}
         <div class="form-grid">
             <div class="form-group full">
                 <label for="vehicle">Vehicle</label>
                 <select id="vehicle" name="vehicle" required>
                     {% for v in vehicles %}
-                    <option value="{{ v.id }}" {% if expense.vehicle_id == v.id %}selected{% endif %}>{{ v.registration_number }}</option>
+                    <option value="{{ v.id }}" {% if fuel_record.vehicle_id == v.id %}selected{% endif %}>{{ v.registration_number }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="form-group">
-                <label for="expense_type">Expense Type</label>
-                <input type="text" id="expense_type" name="expense_type" value="{{ expense.expense_type }}" required>
+                <label for="fuel_litres">Fuel (Litres)</label>
+                <input type="number" id="fuel_litres" name="fuel_litres" step="0.1" min="0" value="{{ fuel_record.fuel_litres }}" required>
             </div>
             <div class="form-group">
-                <label for="amount">Amount (₹)</label>
-                <input type="number" id="amount" name="amount" min="0" value="{{ expense.amount }}" required>
+                <label for="fuel_cost">Cost (₹)</label>
+                <input type="number" id="fuel_cost" name="fuel_cost" step="0.01" min="0" value="{{ fuel_record.fuel_cost }}" required>
             </div>
             <div class="form-group full">
                 <label for="date">Date</label>
-                <input type="date" id="date" name="date" value="{{ expense.date|date:'Y-m-d' }}" required>
+                <input type="date" id="date" name="date" value="{{ fuel_record.date|date:'Y-m-d' }}" required>
             </div>
         </div>
         <div class="form-footer">
-            <a href="{% url 'expenses' %}" class="btn btn-secondary">Cancel</a>
+            <a href="{% url 'fuel' %}" class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
     </form>
@@ -70,12 +70,12 @@ Track tolls, parking, and other operational costs per vehicle
 
 <section class="dashboard-header">
     <div>
-        <h2>Expenses</h2>
-        <p>Track tolls, parking, and other operational costs per vehicle.</p>
+        <h2>Fuel Logs</h2>
+        <p>Record fuel fill-ups and monitor consumption per vehicle.</p>
     </div>
-    <button type="button" class="btn btn-primary" id="openAddExpenseModal">
+    <button type="button" class="btn btn-primary" id="openAddFuelModal">
         <i class="fa-solid fa-plus"></i>
-        Add Expense
+        Add Fuel Record
     </button>
 </section>
 
@@ -83,41 +83,41 @@ Track tolls, parking, and other operational costs per vehicle
 
     <div class="card-header">
         <div>
-            <h3>All Expenses</h3>
-            <p><span id="expenseCount">{{ expenses|length }}</span> records found</p>
+            <h3>Fuel Logs</h3>
+            <p><span id="fuelCount">{{ fuel|length }}</span> records found</p>
         </div>
         <div class="toolbar-controls">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" id="expenseSearch" name="expense_search" placeholder="Search by vehicle or expense type...">
+                <input type="search" id="fuelSearch" name="fuel_search" placeholder="Search by vehicle...">
             </div>
         </div>
     </div>
 
     <div class="table-responsive">
-        <table class="activity-table" id="expenseTable">
+        <table class="activity-table" id="fuelTable">
             <thead>
                 <tr>
                     <th>Vehicle</th>
-                    <th>Expense Type</th>
-                    <th>Amount</th>
+                    <th>Fuel (Litres)</th>
+                    <th>Cost</th>
                     <th>Date</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="expenseTableBody">
-                {% for item in expenses %}
+            <tbody id="fuelTableBody">
+                {% for log in fuel %}
                 <tr>
-                    <td><strong>{{ item.vehicle.registration_number }}</strong></td>
-                    <td><span class="status-badge status-available">{{ item.expense_type }}</span></td>
-                    <td>₹{{ item.amount }}</td>
-                    <td>{{ item.date|date:"Y-m-d" }}</td>
+                    <td><strong>{{ log.vehicle.registration_number }}</strong></td>
+                    <td>{{ log.fuel_litres }} L</td>
+                    <td>₹{{ log.fuel_cost }}</td>
+                    <td>{{ log.date|date:"Y-m-d" }}</td>
                     <td>
                         <div class="row-actions">
-                            <a href="{% url 'edit_expense' item.id %}" class="icon-btn" aria-label="Edit expense">
+                            <a href="{% url 'edit_fuel' log.id %}" class="icon-btn" aria-label="Edit fuel record">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <a href="{% url 'delete_expense' item.id %}" class="icon-btn danger delete-link" aria-label="Delete expense" data-confirm="Delete this expense? This cannot be undone.">
+                            <a href="{% url 'delete_fuel' log.id %}" class="icon-btn danger delete-link" aria-label="Delete fuel record" data-confirm="Delete this fuel record? This cannot be undone.">
                                 <i class="fa-solid fa-trash"></i>
                             </a>
                         </div>
@@ -125,7 +125,7 @@ Track tolls, parking, and other operational costs per vehicle
                 </tr>
                 {% empty %}
                 <tr class="empty-row">
-                    <td colspan="5">No expenses yet. Click "Add Expense" to log the first one.</td>
+                    <td colspan="5">No fuel records yet. Click "Add Fuel Record" to log the first one.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -133,16 +133,16 @@ Track tolls, parking, and other operational costs per vehicle
     </div>
 </section>
 
-<!-- Add Expense Modal -->
-<div class="modal-overlay" id="addExpenseModal">
+<!-- Add Fuel Modal -->
+<div class="modal-overlay" id="addFuelModal">
     <div class="modal">
         <div class="modal-header">
-            <h3>Add Expense</h3>
+            <h3>Add Fuel Record</h3>
             <button type="button" class="modal-close" data-close-modal aria-label="Close">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <form method="POST" action="{% url 'add_expense' %}">
+        <form method="POST" action="{% url 'add_fuel' %}">
             {% csrf_token %}
             <div class="modal-body">
                 <div class="form-grid">
@@ -156,12 +156,12 @@ Track tolls, parking, and other operational costs per vehicle
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="new_expense_type">Expense Type</label>
-                        <input type="text" id="new_expense_type" name="expense_type" required placeholder="e.g. Toll, Parking">
+                        <label for="new_fuel_litres">Fuel (Litres)</label>
+                        <input type="number" id="new_fuel_litres" name="fuel_litres" step="0.1" min="0" required placeholder="e.g. 38.5">
                     </div>
                     <div class="form-group">
-                        <label for="new_amount">Amount (₹)</label>
-                        <input type="number" id="new_amount" name="amount" min="0" required placeholder="e.g. 420">
+                        <label for="new_fuel_cost">Cost (₹)</label>
+                        <input type="number" id="new_fuel_cost" name="fuel_cost" step="0.01" min="0" required placeholder="e.g. 3540">
                     </div>
                     <div class="form-group full">
                         <label for="new_date">Date</label>
@@ -171,7 +171,7 @@ Track tolls, parking, and other operational costs per vehicle
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Expense</button>
+                <button type="submit" class="btn btn-primary">Save Fuel Record</button>
             </div>
         </form>
     </div>

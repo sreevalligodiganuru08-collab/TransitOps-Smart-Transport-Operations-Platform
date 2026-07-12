@@ -1,323 +1,264 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trip Management · TransitOps</title>
-  <link rel="stylesheet" href="{% static 'css/trip.css' %}">
-</head>
-<body>
 
-  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+{% block title %}
+Trips | TransitOps
+{% endblock %}
 
-  <div class="app-shell">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-mark">TO</div>
+{% block page_title %}
+Trip Management
+{% endblock %}
+
+{% block page_subtitle %}
+Create, dispatch, and track fleet trips in real time
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vehicle.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if trip %}
+
+<section class="dashboard-card">
+
+    <div class="card-header">
         <div>
-          <div class="brand-text">TransitOps</div>
-          <div class="brand-sub">Fleet Control Center</div>
+            <h3>Edit Trip</h3>
+            <p>Update trip details for {{ trip.source }} &rarr; {{ trip.destination }}</p>
         </div>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section-label">Operations</div>
-        <a href="/dashboard/">
-          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-          Dashboard
+        <a href="{% url 'trips' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Trips
         </a>
-        <a href="/vehicles/">
-          <svg class="icon" viewBox="0 0 24 24"><rect x="1" y="7" width="13" height="9" rx="1.5"/><path d="M14 10h4l4 3.2V16h-8z"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="17.5" cy="18.5" r="1.8"/></svg>
-          Vehicles
-        </a>
-        <a href="/drivers/">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="8.5" r="2.4"/><path d="M16.2 14.2c2.6.6 4.3 2.6 4.3 5.3"/></svg>
-          Drivers
-        </a>
-        <a href="/trips/" class="active">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M5 8.2V12a4 4 0 0 0 4 4h5a4 4 0 0 1 4 4"/></svg>
-          Trips
-        </a>
-        <a href="/maintenance/">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M14.2 6.6a3.6 3.6 0 0 1-4.8 4.8L4.6 16.2a1.8 1.8 0 0 0 2.5 2.5l4.8-4.8a3.6 3.6 0 0 1 4.8-4.8l-2.3 2.3-1.8-1.8z"/></svg>
-          Maintenance
-        </a>
-        <div class="nav-section-label">Finance &amp; Insights</div>
-        <a href="/expenses/">
-          <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-          Fuel &amp; Expenses
-        </a>
-        <a href="/reports/">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-          Reports
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="avatar">DR</div>
+    </div>
+
+    <form method="POST" action="{% url 'edit_trip' trip.id %}">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-group full">
+                <label for="source">Source</label>
+                <input type="text" id="source" name="source" value="{{ trip.source }}" required>
+            </div>
+            <div class="form-group full">
+                <label for="destination">Destination</label>
+                <input type="text" id="destination" name="destination" value="{{ trip.destination }}" required>
+            </div>
+            <div class="form-group">
+                <label for="vehicle">Vehicle</label>
+                <select id="vehicle" name="vehicle" required>
+                    {% for v in vehicles %}
+                    <option value="{{ v.id }}" data-capacity="{{ v.capacity }}" {% if trip.vehicle_id == v.id %}selected{% endif %}>{{ v.registration_number }} &middot; {{ v.status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="driver">Driver</label>
+                <select id="driver" name="driver" required>
+                    {% for d in drivers %}
+                    <option value="{{ d.id }}" {% if trip.driver_id == d.id %}selected{% endif %}>{{ d.name }} &middot; {{ d.status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cargo_weight">Cargo Weight (kg)</label>
+                <input type="number" id="cargo_weight" name="cargo_weight" min="1" value="{{ trip.cargo_weight }}" required>
+                <span class="form-error" id="cargoError">Cargo weight exceeds the selected vehicle's maximum load capacity.</span>
+            </div>
+            <div class="form-group">
+                <label for="planned_distance">Planned Distance (km)</label>
+                <input type="number" id="planned_distance" name="planned_distance" min="1" value="{{ trip.planned_distance }}" required>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ trip.start_date|date:'Y-m-d' }}" required>
+            </div>
+            <div class="form-group">
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ trip.end_date|date:'Y-m-d' }}">
+            </div>
+            <div class="form-group full">
+                <label for="status">Status</label>
+                <select id="status" name="status" required>
+                    <option value="Scheduled" {% if trip.status == "Scheduled" %}selected{% endif %}>Scheduled</option>
+                    <option value="Ongoing" {% if trip.status == "Ongoing" %}selected{% endif %}>Ongoing</option>
+                    <option value="Completed" {% if trip.status == "Completed" %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-footer">
+            <a href="{% url 'trips' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+
+</section>
+
+{% else %}
+
+<section class="dashboard-header">
+    <div>
+        <h2>Trip Management</h2>
+        <p>Create, dispatch, and track fleet trips in real time.</p>
+    </div>
+    <button type="button" class="btn btn-primary" id="openAddTripModal">
+        <i class="fa-solid fa-plus"></i>
+        Create Trip
+    </button>
+</section>
+
+<section class="dashboard-card">
+
+    <div class="card-header">
         <div>
-          <div class="who-name">Driver</div>
-          <div class="who-role">Dispatch Role</div>
+            <h3>All Trips</h3>
+            <p><span id="tripCount">{{ trips|length }}</span> trips found</p>
         </div>
-      </div>
-    </aside>
-
-    <!-- Main -->
-    <div class="main-col">
-      <header class="topbar">
-        <div class="topbar-left">
-          <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-          </button>
-          <div class="page-heading">
-            <h1>Trip Management</h1>
-            <p>Create, dispatch, and track fleet trips in real time.</p>
-          </div>
-        </div>
-        <div class="topbar-right">
-          <button type="button" class="icon-btn" aria-label="Notifications">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-          </button>
-          <div class="avatar">DR</div>
-        </div>
-      </header>
-
-      <main class="page-content">
-        <div class="toolbar">
-          <div class="toolbar-filters">
+        <div class="toolbar-controls">
             <div class="search-box">
-              <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-              <input type="search" id="tripSearch" name="trip_search" placeholder="Search by trip ID, source, destination, vehicle or driver...">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="tripSearch" name="trip_search" placeholder="Search by source, destination, vehicle or driver...">
             </div>
             <select id="statusFilter" name="status_filter" class="select-filter">
-              <option value="all">All Statuses</option>
-              <option value="draft">Draft</option>
-              <option value="dispatched">Dispatched</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
+                <option value="all">All Statuses</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Completed">Completed</option>
             </select>
-          </div>
-          <button type="button" class="btn btn-primary" id="openCreateTripModal">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-            Create Trip
-          </button>
         </div>
+    </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <h2>All Trips</h2>
-              <div class="card-sub"><span id="tripCount">0</span> trips found</div>
-            </div>
-          </div>
-          <div class="table-wrapper">
-            <table class="data-table" id="tripsTable">
-              <thead>
+    <div class="table-responsive">
+        <table class="activity-table" id="tripsTable">
+            <thead>
                 <tr>
-                  <th>Trip ID</th>
-                  <th>Source</th>
-                  <th>Destination</th>
-                  <th>Vehicle</th>
-                  <th>Driver</th>
-                  <th>Cargo Weight</th>
-                  <th>Planned Distance</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                    <th>Trip ID</th>
+                    <th>Source</th>
+                    <th>Destination</th>
+                    <th>Vehicle</th>
+                    <th>Driver</th>
+                    <th>Cargo Weight</th>
+                    <th>Planned Distance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
-              </thead>
-              <tbody id="tripsTableBody">
-                <tr data-status="dispatched">
-                  <td class="cell-strong">TRP-1001</td>
-                  <td>Warehouse A · Pune</td>
-                  <td>Distribution Hub · Mumbai</td>
-                  <td>Van-05</td>
-                  <td>Alex Carter</td>
-                  <td>450 kg</td>
-                  <td>180 km</td>
-                  <td><span class="badge badge-dispatched">Dispatched</span></td>
-                  <td>
-                    <div class="row-actions">
-                      <button type="button" class="btn-icon action-complete" title="Complete trip" aria-label="Complete trip" data-id="TRP-1001">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>
-                      </button>
-                      <button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="TRP-1001">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                      </button>
-                    </div>
-                  </td>
+            </thead>
+            <tbody id="tripsTableBody">
+                {% for trip in trips %}
+                <tr data-status="{{ trip.status }}">
+                    <td><strong>TRP-{{ trip.id }}</strong></td>
+                    <td>{{ trip.source }}</td>
+                    <td>{{ trip.destination }}</td>
+                    <td>{{ trip.vehicle.registration_number }}</td>
+                    <td>{{ trip.driver.name }}</td>
+                    <td>{{ trip.cargo_weight }} kg</td>
+                    <td>{{ trip.planned_distance }} km</td>
+                    <td>
+                        <span class="status-badge status-{{ trip.status|slugify }}">{{ trip.status }}</span>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <a href="{% url 'edit_trip' trip.id %}" class="icon-btn" aria-label="Edit trip">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <a href="{% url 'delete_trip' trip.id %}" class="icon-btn danger delete-link" aria-label="Delete trip" data-confirm="Delete trip TRP-{{ trip.id }}? This cannot be undone.">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
                 </tr>
-                <tr data-status="draft">
-                  <td class="cell-strong">TRP-1002</td>
-                  <td>Depot B · Hyderabad</td>
-                  <td>Retail Store · Vijayawada</td>
-                  <td>Truck-12</td>
-                  <td>Maria Gomez</td>
-                  <td>1200 kg</td>
-                  <td>275 km</td>
-                  <td><span class="badge badge-draft">Draft</span></td>
-                  <td>
-                    <div class="row-actions">
-                      <button type="button" class="btn-icon action-dispatch" title="Dispatch trip" aria-label="Dispatch trip" data-id="TRP-1002">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M5 4l14 8-14 8V4z"/></svg>
-                      </button>
-                      <button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="TRP-1002">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                      </button>
-                    </div>
-                  </td>
+                {% empty %}
+                <tr class="empty-row">
+                    <td colspan="9">No trips yet. Click "Create Trip" to dispatch the first one.</td>
                 </tr>
-                <tr data-status="completed">
-                  <td class="cell-strong">TRP-0998</td>
-                  <td>Port Yard · Chennai</td>
-                  <td>Warehouse C · Bengaluru</td>
-                  <td>Truck-03</td>
-                  <td>Rohan Mehta</td>
-                  <td>2800 kg</td>
-                  <td>350 km</td>
-                  <td><span class="badge badge-completed">Completed</span></td>
-                  <td>
-                    <div class="row-actions">
-                      <span class="cell-muted">No actions</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr data-status="cancelled">
-                  <td class="cell-strong">TRP-0991</td>
-                  <td>Warehouse A · Pune</td>
-                  <td>Depot D · Nashik</td>
-                  <td>Van-08</td>
-                  <td>Priya Nair</td>
-                  <td>300 kg</td>
-                  <td>140 km</td>
-                  <td><span class="badge badge-cancelled">Cancelled</span></td>
-                  <td>
-                    <div class="row-actions">
-                      <span class="cell-muted">No actions</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr data-status="dispatched">
-                  <td class="cell-strong">TRP-1003</td>
-                  <td>Distribution Hub · Mumbai</td>
-                  <td>Warehouse A · Pune</td>
-                  <td>Van-05</td>
-                  <td>Alex Carter</td>
-                  <td>380 kg</td>
-                  <td>180 km</td>
-                  <td><span class="badge badge-dispatched">Dispatched</span></td>
-                  <td>
-                    <div class="row-actions">
-                      <button type="button" class="btn-icon action-complete" title="Complete trip" aria-label="Complete trip" data-id="TRP-1003">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>
-                      </button>
-                      <button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="TRP-1003">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr data-status="draft">
-                  <td class="cell-strong">TRP-1004</td>
-                  <td>Depot D · Nashik</td>
-                  <td>Retail Store · Vijayawada</td>
-                  <td>Truck-12</td>
-                  <td>Maria Gomez</td>
-                  <td>950 kg</td>
-                  <td>410 km</td>
-                  <td><span class="badge badge-draft">Draft</span></td>
-                  <td>
-                    <div class="row-actions">
-                      <button type="button" class="btn-icon action-dispatch" title="Dispatch trip" aria-label="Dispatch trip" data-id="TRP-1004">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M5 4l14 8-14 8V4z"/></svg>
-                      </button>
-                      <button type="button" class="btn-icon danger action-cancel" title="Cancel trip" aria-label="Cancel trip" data-id="TRP-1004">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
+</section>
 
-  <!-- Create Trip Modal -->
-  <div class="modal-overlay" id="createTripModal">
+<!-- Create Trip Modal -->
+<div class="modal-overlay" id="addTripModal">
     <div class="modal">
-      <div class="modal-header">
-        <h3>Create New Trip</h3>
-        <button type="button" class="modal-close" data-close-modal aria-label="Close">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
-        </button>
-      </div>
-      <form id="createTripForm" method="POST" novalidate>
-        <div class="modal-body">
-          <div class="form-grid">
-            <div class="form-group full">
-              <label for="source">Source</label>
-              <input type="text" id="source" name="source" required placeholder="e.g. Warehouse A · Pune">
-            </div>
-            <div class="form-group full">
-              <label for="destination">Destination</label>
-              <input type="text" id="destination" name="destination" required placeholder="e.g. Distribution Hub · Mumbai">
-            </div>
-            <div class="form-group">
-              <label for="vehicle">Vehicle</label>
-              <select id="vehicle" name="vehicle" required>
-                <option value="">Select available vehicle</option>
-                <option value="Van-05" data-capacity="500">Van-05 · Max 500 kg</option>
-                <option value="Van-08" data-capacity="650">Van-08 · Max 650 kg</option>
-                <option value="Truck-12" data-capacity="2000">Truck-12 · Max 2000 kg</option>
-                <option value="Truck-03" data-capacity="3500">Truck-03 · Max 3500 kg</option>
-              </select>
-              <span class="form-hint">Only vehicles with status "Available" are listed.</span>
-            </div>
-            <div class="form-group">
-              <label for="driver">Driver</label>
-              <select id="driver" name="driver" required>
-                <option value="">Select available driver</option>
-                <option value="Alex Carter">Alex Carter</option>
-                <option value="Maria Gomez">Maria Gomez</option>
-                <option value="Rohan Mehta">Rohan Mehta</option>
-                <option value="Priya Nair">Priya Nair</option>
-              </select>
-              <span class="form-hint">Suspended drivers or expired licenses are hidden.</span>
-            </div>
-            <div class="form-group">
-              <label for="cargo_weight">Cargo Weight (kg)</label>
-              <input type="number" id="cargo_weight" name="cargo_weight" min="1" required placeholder="e.g. 450">
-              <span class="form-error" id="cargoError">Cargo weight exceeds the selected vehicle's maximum load capacity.</span>
-            </div>
-            <div class="form-group">
-              <label for="planned_distance">Planned Distance (km)</label>
-              <input type="number" id="planned_distance" name="planned_distance" min="1" required placeholder="e.g. 180">
-            </div>
-            <div class="form-group">
-              <label for="start_date">Start Date</label>
-              <input type="date" id="start_date" name="start_date" required>
-            </div>
-            <div class="form-group">
-              <label for="end_date">End Date</label>
-              <input type="date" id="end_date" name="end_date">
-              <span class="form-hint">Leave blank until the trip is completed.</span>
-            </div>
-            <input type="hidden" id="status" name="status" value="draft">
-          </div>
+        <div class="modal-header">
+            <h3>Create New Trip</h3>
+            <button type="button" class="modal-close" data-close-modal aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
-          <button type="submit" class="btn btn-secondary" id="saveDraftTripBtn" data-mode="draft">Save as Draft</button>
-          <button type="submit" class="btn btn-primary" id="dispatchTripBtn" data-mode="dispatch">Dispatch Trip</button>
-        </div>
-      </form>
+        <form method="POST" action="{% url 'add_trip' %}">
+            {% csrf_token %}
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="new_source">Source</label>
+                        <input type="text" id="new_source" name="source" required placeholder="e.g. Warehouse A · Pune">
+                    </div>
+                    <div class="form-group full">
+                        <label for="new_destination">Destination</label>
+                        <input type="text" id="new_destination" name="destination" required placeholder="e.g. Distribution Hub · Mumbai">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_vehicle">Vehicle</label>
+                        <select id="new_vehicle" name="vehicle" required>
+                            <option value="">Select vehicle</option>
+                            {% for v in vehicles %}
+                            <option value="{{ v.id }}" data-capacity="{{ v.capacity }}">{{ v.registration_number }} &middot; {{ v.status }} &middot; Max {{ v.capacity }} kg</option>
+                            {% endfor %}
+                        </select>
+                        <span class="form-hint">Only vehicles with status "Available" should be dispatched.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_driver">Driver</label>
+                        <select id="new_driver" name="driver" required>
+                            <option value="">Select driver</option>
+                            {% for d in drivers %}
+                            <option value="{{ d.id }}">{{ d.name }} &middot; {{ d.status }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="form-hint">Suspended or on-trip drivers should not be assigned.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_cargo_weight">Cargo Weight (kg)</label>
+                        <input type="number" id="new_cargo_weight" name="cargo_weight" min="1" required placeholder="e.g. 450">
+                        <span class="form-error" id="newCargoError">Cargo weight exceeds the selected vehicle's maximum load capacity.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_planned_distance">Planned Distance (km)</label>
+                        <input type="number" id="new_planned_distance" name="planned_distance" min="1" required placeholder="e.g. 180">
+                    </div>
+                    <div class="form-group">
+                        <label for="new_start_date">Start Date</label>
+                        <input type="date" id="new_start_date" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_end_date">End Date</label>
+                        <input type="date" id="new_end_date" name="end_date">
+                        <span class="form-hint">Leave blank until the trip is completed.</span>
+                    </div>
+                    <div class="form-group full">
+                        <label for="new_status">Status</label>
+                        <select id="new_status" name="status" required>
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Trip</button>
+            </div>
+        </form>
     </div>
-  </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+{% endif %}
 
-  <script src="{% static 'js/trip.js' %}"></script>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/trip.js' %}"></script>
+{% endblock %}
