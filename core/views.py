@@ -214,6 +214,49 @@ def maintenance_list(request):
     })
 
 
+@login_required
+def add_maintenance(request):
+
+    if request.method == "POST":
+
+        Maintenance.objects.create(
+            vehicle_id=request.POST["vehicle"],
+            maintenance_type=request.POST["maintenance_type"],
+            maintenance_date=request.POST["maintenance_date"],
+            cost=request.POST["cost"],
+            status=request.POST["status"],
+        )
+
+        return redirect("maintenance")
+
+    return render(request, "maintenance.html")
+@login_required
+def edit_maintenance(request, id):
+
+    maintenance = get_object_or_404(Maintenance, id=id)
+
+    if request.method == "POST":
+        maintenance.vehicle_id = request.POST["vehicle"]
+        maintenance.maintenance_type = request.POST["maintenance_type"]
+        maintenance.maintenance_date = request.POST["maintenance_date"]
+        maintenance.cost = request.POST["cost"]
+        maintenance.status = request.POST["status"]
+        maintenance.save()
+
+        return redirect("maintenance")
+
+    return render(request, "maintenance.html", {
+        "maintenance": maintenance
+    })
+
+
+@login_required
+def delete_maintenance(request, id):
+
+    Maintenance.objects.filter(id=id).delete()
+
+    return redirect("maintenance")
+
 # -------------------------
 # Expense
 # -------------------------
@@ -226,6 +269,46 @@ def expense_list(request):
         'expenses': expenses
     })
 
+@login_required
+def add_expense(request):
+
+    if request.method == "POST":
+
+        Expense.objects.create(
+            vehicle_id=request.POST["vehicle"],
+            expense_type=request.POST["expense_type"],
+            amount=request.POST["amount"],
+            date=request.POST["date"],
+        )
+
+        return redirect("expenses")
+
+    return render(request, "expenses.html")
+@login_required
+def edit_expense(request, id):
+
+    expense = get_object_or_404(Expense, id=id)
+
+    if request.method == "POST":
+        expense.vehicle_id = request.POST["vehicle"]
+        expense.expense_type = request.POST["expense_type"]
+        expense.amount = request.POST["amount"]
+        expense.date = request.POST["date"]
+        expense.save()
+
+        return redirect("expenses")
+
+    return render(request, "expenses.html", {
+        "expense": expense
+    })
+
+
+@login_required
+def delete_expense(request, id):
+
+    Expense.objects.filter(id=id).delete()
+
+    return redirect("expenses")
 
 # -------------------------
 # Reports
@@ -255,3 +338,100 @@ def reports(request):
     }
 
     return render(request, "reports.html", context)
+
+@login_required
+def add_trip(request):
+
+    if request.method == "POST":
+
+        Trip.objects.create(
+            vehicle_id=request.POST["vehicle"],
+            driver_id=request.POST["driver"],
+            source=request.POST["source"],
+            destination=request.POST["destination"],
+            cargo_weight=request.POST["cargo_weight"],
+            planned_distance=request.POST["planned_distance"],
+            start_date=request.POST["start_date"],
+            end_date=request.POST["end_date"],
+            status=request.POST["status"],
+        )
+
+        return redirect("trips")
+
+    return render(request, "trips.html")
+
+@login_required
+def edit_trip(request, id):
+    trip = get_object_or_404(Trip, id=id)
+
+    if request.method == "POST":
+        trip.vehicle_id = request.POST["vehicle"]
+        trip.driver_id = request.POST["driver"]
+        trip.source = request.POST["source"]
+        trip.destination = request.POST["destination"]
+        trip.cargo_weight = request.POST["cargo_weight"]
+        trip.planned_distance = request.POST["planned_distance"]
+        trip.start_date = request.POST["start_date"]
+        trip.end_date = request.POST["end_date"]
+        trip.status = request.POST["status"]
+        trip.save()
+
+        return redirect("trips")
+
+    return render(request, "trips.html", {"trip": trip})
+
+@login_required
+def delete_trip(request, id):
+    Trip.objects.filter(id=id).delete()
+    return redirect("trips")
+@login_required
+def fuel_list(request):
+
+    fuel = FuelLog.objects.all()
+
+    return render(request, "fuel.html", {
+        "fuel": fuel
+    })
+
+
+@login_required
+def add_fuel(request):
+
+    if request.method == "POST":
+
+        FuelLog.objects.create(
+            vehicle_id=request.POST["vehicle"],
+            fuel_litres=request.POST["fuel_litres"],
+            fuel_cost=request.POST["fuel_cost"],
+            date=request.POST["date"],
+        )
+
+        return redirect("fuel")
+
+    return render(request, "fuel.html")
+
+@login_required
+def edit_fuel(request, id):
+
+    fuel = get_object_or_404(FuelLog, id=id)
+
+    if request.method == "POST":
+        fuel.vehicle_id = request.POST["vehicle"]
+        fuel.fuel_litres = request.POST["fuel_litres"]
+        fuel.fuel_cost = request.POST["fuel_cost"]
+        fuel.date = request.POST["date"]
+        fuel.save()
+
+        return redirect("fuel")
+
+    return render(request, "fuel.html", {
+        "fuel": fuel
+    })
+
+
+@login_required
+def delete_fuel(request, id):
+
+    FuelLog.objects.filter(id=id).delete()
+
+    return redirect("fuel")
