@@ -699,6 +699,9 @@ textarea {
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 560px;
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-lg);
   transform: translateY(-16px);
   transition: transform 0.18s ease;
@@ -708,12 +711,20 @@ textarea {
   transform: translateY(0);
 }
 
+.modal form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 18px 22px;
   border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -739,7 +750,8 @@ textarea {
 
 .modal-body {
   padding: 22px;
-  max-height: 65vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -749,6 +761,7 @@ textarea {
   gap: 10px;
   padding: 16px 22px;
   border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 /* ---------------------------------------------------------------------- */

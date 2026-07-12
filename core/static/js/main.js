@@ -60,4 +60,32 @@ document.addEventListener("DOMContentLoaded", function () {
             closeSidebar();
         }
     });
+
+    const notificationToggle = document.getElementById("notificationToggle");
+    const notificationDropdown = document.getElementById("notificationDropdown");
+
+    function closeNotifications() {
+        if (notificationDropdown) {
+            notificationDropdown.classList.remove("open");
+        }
+    }
+
+    if (notificationToggle && notificationDropdown) {
+        notificationToggle.addEventListener("click", function (event) {
+            event.stopPropagation();
+            notificationDropdown.classList.toggle("open");
+        });
+
+        notificationDropdown.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        document.addEventListener("click", closeNotifications);
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeNotifications();
+            }
+        });
+    }
 });
